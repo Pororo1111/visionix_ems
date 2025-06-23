@@ -1,0 +1,179 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Coding Standards and Best Practices
+
+## TypeScript Guidelines
+
+### Type Safety
+- Always use TypeScript strict mode
+- Define proper interfaces for all props and data structures
+- Use type inference when possible, but be explicit for complex types
+- Avoid `any` type - use `unknown` or proper typing instead
+
+### Component Patterns
+- Use functional components with hooks
+- Define props interfaces in the same file as the component
+- Use destructuring for props
+- Implement proper error boundaries
+
+### Example Component Structure
+```typescript
+interface ComponentProps {
+  title: string;
+  count: number;
+  onUpdate: (value: number) => void;
+}
+
+export default function Component({ title, count, onUpdate }: ComponentProps) {
+  // Component logic here
+}
+```
+
+## React Best Practices
+
+### State Management
+- Use `useState` for local component state
+- Use `useEffect` for side effects
+- Implement proper cleanup in useEffect
+- Avoid prop drilling - use context or state management libraries if needed
+
+### Performance Optimization
+- Use `React.memo` for expensive components
+- Implement proper dependency arrays in useEffect
+- Use `useCallback` and `useMemo` when necessary
+- Lazy load components with `React.lazy`
+
+### Server vs Client Components
+- Default to server components
+- Use `"use client"` only when necessary (interactivity, browser APIs)
+- Keep client components as small as possible
+- Pass data down from server components
+
+## API Development
+
+### Route Handlers
+- Use Next.js App Router API routes
+- Implement proper HTTP status codes
+- Handle errors gracefully
+- Validate input data
+- Return consistent JSON responses
+
+### Example API Route
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    // Process data
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Database Patterns
+
+### Drizzle ORM Usage
+- Define schemas in domain model files
+- Use proper relationships and constraints
+- Implement repository pattern for data access
+- Use transactions for complex operations
+
+### Migration Best Practices
+- Always test migrations locally first
+- Use descriptive migration names
+- Include both up and down migrations
+- Document schema changes
+
+## Styling Guidelines
+
+### Tailwind CSS
+- Use utility classes for styling
+- Follow responsive design principles
+- Maintain consistent spacing and colors
+- Use custom CSS only when necessary
+
+### Component Styling
+- Use shadcn/ui components as base
+- Customize with Tailwind classes
+- Implement dark mode support
+- Ensure accessibility compliance
+
+## Error Handling
+
+### Client-Side Errors
+- Implement proper error boundaries
+- Show user-friendly error messages
+- Log errors for debugging
+- Provide fallback UI
+
+### Server-Side Errors
+- Use try-catch blocks
+- Return appropriate HTTP status codes
+- Log errors with context
+- Implement proper validation
+
+## Code Organization
+
+### File Structure
+- Keep files focused and single-purpose
+- Use descriptive file names
+- Group related functionality
+- Follow the established domain structure
+
+### Import Organization
+- Group imports by type (React, external, internal)
+- Use absolute imports with `@/` prefix
+- Remove unused imports
+- Use named exports when possible
+
+## Testing Guidelines
+
+### Component Testing
+- Test user interactions
+- Verify prop handling
+- Test error states
+- Ensure accessibility
+
+### API Testing
+- Test all HTTP methods
+- Verify error handling
+- Test input validation
+- Check response formats
+
+## Documentation
+
+### Code Comments
+- Comment complex business logic
+- Explain non-obvious decisions
+- Use Korean comments for project context
+- Keep comments up to date
+
+### README and Docs
+- Document setup instructions
+- Explain architecture decisions
+- Provide usage examples
+- Keep documentation current
+
+## Git Workflow
+
+### Commit Messages
+- Use conventional commit format
+- Write descriptive commit messages
+- Reference issues when applicable
+- Keep commits focused and atomic
+
+### Branch Strategy
+- Use feature branches for new development
+- Keep main branch stable
+- Review code before merging
+- Use descriptive branch names
+

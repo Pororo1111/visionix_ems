@@ -1,0 +1,146 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Next.js 15 + TypeScript + Drizzle ORM Project Structure
+
+## Project Overview
+This is a full-stack web application with counter and guestbook features using Next.js 15, TypeScript, PostgreSQL, and Drizzle ORM.
+
+## Tech Stack
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **UI**: Radix UI, Tailwind CSS, shadcn/ui
+- **Database**: PostgreSQL, Drizzle ORM
+- **Styling**: Tailwind CSS v4
+- **Forms**: React Hook Form, Zod validation
+- **State**: React hooks (useState, useEffect)
+
+## Project Structure
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   │   ├── counter/
+│   │   └── guestbook/
+│   ├── components/        # Page-specific components
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/            # Shared UI components
+│   └── ui/               # shadcn/ui components
+├── db/                   # Database migrations
+│   └── migrations/
+├── domain/               # Domain-driven architecture
+│   ├── counter/
+│   │   ├── dto/
+│   │   ├── model/
+│   │   ├── repository/
+│   │   └── service/
+│   └── guestbook/
+│       ├── dto/
+│       ├── model/
+│       ├── repository/
+│       └── service/
+├── hooks/                # Custom React hooks
+└── lib/                  # Utilities and configurations
+    ├── db.ts
+    └── utils.ts
+```
+
+## Key Files
+- Main entry point: [src/app/page.tsx](mdc:src/app/page.tsx)
+- Database configuration: [src/lib/db.ts](mdc:src/lib/db.ts)
+- Drizzle config: [drizzle.config.ts](mdc:drizzle.config.ts)
+- Package configuration: [package.json](mdc:package.json)
+- TypeScript config: [tsconfig.json](mdc:tsconfig.json)
+
+## Architecture Rules
+
+### Domain-Driven Structure
+Each domain follows this pattern:
+```
+src/domain/{domain}/
+├── model/          # Drizzle schemas
+├── dto/            # Data transfer objects
+├── repository/     # Data access layer
+└── service/        # Business logic
+```
+
+### File Naming Conventions
+- Components: PascalCase (`Counter.tsx`, `Guestbook.tsx`)
+- Services/Utils: camelCase (`counter.service.ts`)
+- Models: camelCase (`counter.ts`, `guestbook.ts`)
+- DTOs: camelCase (`counter.dto.ts`)
+
+### Component Rules
+- Client components: `"use client"` directive at top
+- Server components: no directive (default)
+- Props interfaces in same file
+- TypeScript strict mode
+- Korean comments for complex logic
+
+### API Routes
+- Location: `src/app/api/{feature}/route.ts`
+- Separate functions for HTTP methods
+- Proper error handling with status codes
+- JSON responses
+
+### Database
+- Use Drizzle ORM
+- Schemas in `src/domain/{domain}/model/`
+- Migrations in `src/db/migrations/`
+- Connection in [src/lib/db.ts](mdc:src/lib/db.ts)
+
+### Styling
+- Tailwind CSS classes
+- shadcn/ui components
+- Responsive design
+- Consistent spacing/colors
+
+### State Management
+- Local state: `useState`
+- Server state: Server components
+- Client updates: API calls + local state refresh
+
+### Error Handling
+- Try-catch for API calls
+- User-friendly error messages
+- Loading states
+
+### Performance
+- Server components for initial load
+- Suspense for loading states
+- Proper pagination
+
+## Development Guidelines
+
+### Adding New Features
+1. Create domain directory if needed
+2. Define model schema
+3. Create DTO interfaces
+4. Implement repository logic
+5. Add service layer
+6. Create API routes
+7. Build UI components
+8. Integrate into pages
+
+### Database Changes
+1. Modify model schema
+2. Run `npm run db:generate`
+3. Run `npm run db:migrate`
+
+### Component Development
+1. Define TypeScript interfaces
+2. Specify proper prop types
+3. Handle error/loading states
+4. Consider accessibility
+5. Apply responsive design
+
+## Code Quality
+- Follow ESLint rules
+- Use TypeScript strict mode
+- Meaningful variable/function names
+- Comments only for complex logic
+- Korean comments for project context
+

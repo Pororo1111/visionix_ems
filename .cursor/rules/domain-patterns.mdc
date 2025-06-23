@@ -1,0 +1,194 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Domain-Driven Architecture Patterns
+
+## Domain Structure Overview
+
+This project follows a domain-driven design approach where each business domain is organized into its own directory with clear separation of concerns.
+
+## Domain Organization
+
+### Counter Domain
+Located in [src/domain/counter/](mdc:src/domain/counter)
+- **Model**: [src/domain/counter/model/counter.ts](mdc:src/domain/counter/model/counter.ts) - Database schema
+- **DTO**: [src/domain/counter/dto/counter.dto.ts](mdc:src/domain/counter/dto/counter.dto.ts) - Data transfer objects
+- **Repository**: [src/domain/counter/repository/counter.repository.ts](mdc:src/domain/counter/repository/counter.repository.ts) - Data access layer
+- **Service**: [src/domain/counter/service/counter.service.ts](mdc:src/domain/counter/service/counter.service.ts) - Business logic
+
+### Guestbook Domain
+Located in [src/domain/guestbook/](mdc:src/domain/guestbook)
+- **Model**: [src/domain/guestbook/model/guestbook.ts](mdc:src/domain/guestbook/model/guestbook.ts) - Database schema
+- **DTO**: [src/domain/guestbook/dto/guestbook.dto.ts](mdc:src/domain/guestbook/dto/guestbook.dto.ts) - Data transfer objects
+- **Repository**: [src/domain/guestbook/repository/guestbook.repository.ts](mdc:src/domain/guestbook/repository/guestbook.repository.ts) - Data access layer
+- **Service**: [src/domain/guestbook/service/guestbook.service.ts](mdc:src/domain/guestbook/service/guestbook.service.ts) - Business logic
+
+## Layer Responsibilities
+
+### Model Layer
+- Define Drizzle ORM schemas
+- Represent database table structure
+- Include proper constraints and relationships
+- Use TypeScript types for type safety
+
+Example:
+```typescript
+import { pgTable, serial, integer } from 'drizzle-orm/pg-core';
+
+export const counter = pgTable('counter', {
+  id: serial('id').primaryKey(),
+  value: integer('value').notNull().default(0),
+});
+```
+
+### DTO Layer
+- Define data transfer object interfaces
+- Separate internal data structures from external API contracts
+- Include validation schemas if needed
+- Use clear, descriptive names
+
+Example:
+```typescript
+export interface CounterValue {
+  id: number;
+  value: number;
+}
+
+export interface CounterUpdate {
+  action: 'increment' | 'decrement' | 'reset';
+}
+```
+
+### Repository Layer
+- Handle all database operations
+- Implement CRUD operations
+- Use Drizzle ORM for queries
+- Handle database-specific logic
+
+Example:
+```typescript
+import { db } from '@/lib/db';
+import { counter } from '../model/counter';
+
+export async function getCounterValue(): Promise<number> {
+  const result = await db.select().from(counter).limit(1);
+  return result[0]?.value ?? 0;
+}
+```
+
+### Service Layer
+- Implement business logic
+- Coordinate between repositories
+- Handle domain-specific operations
+- Provide clean API for controllers
+
+Example:
+```typescript
+import { getCounterValue, updateCounterValue } from '../repository/counter.repository';
+
+export async function incrementCounter(): Promise<number> {
+  const currentValue = await getCounterValue();
+  const newValue = currentValue + 1;
+  await updateCounterValue(newValue);
+  return newValue;
+}
+```
+
+## Adding New Domains
+
+When adding a new domain, follow this structure:
+
+1. **Create domain directory**: `src/domain/{domain-name}/`
+2. **Add model file**: `src/domain/{domain-name}/model/{domain-name}.ts`
+3. **Add DTO file**: `src/domain/{domain-name}/dto/{domain-name}.dto.ts`
+4. **Add repository file**: `src/domain/{domain-name}/repository/{domain-name}.repository.ts`
+5. **Add service file**: `src/domain/{domain-name}/service/{domain-name}.service.ts`
+
+## Cross-Domain Communication
+
+### Service-to-Service Communication
+- Services can call other domain services when needed
+- Maintain loose coupling between domains
+- Use dependency injection patterns if complexity increases
+
+### Shared Utilities
+- Place shared utilities in [src/lib/](mdc:src/lib)
+- Use [src/lib/utils.ts](mdc:src/lib/utils.ts) for common functions
+- Keep domain-specific logic within domains
+
+## Database Integration
+
+### Connection Management
+- Database connection is managed in [src/lib/db.ts](mdc:src/lib/db.ts)
+- All repositories use the same connection instance
+- Follow connection pooling best practices
+
+### Migration Strategy
+- Migrations are stored in [src/db/migrations/](mdc:src/db/migrations)
+- Use Drizzle Kit for migration generation
+- Test migrations in development before production
+
+## API Integration
+
+### Route Handlers
+- API routes are located in `src/app/api/{domain}/route.ts`
+- Routes should delegate to domain services
+- Handle HTTP-specific concerns (status codes, headers)
+
+Example:
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import { incrementCounter } from '@/domain/counter/service/counter.service';
+
+export async function POST(request: NextRequest) {
+  try {
+    const newValue = await incrementCounter();
+    return NextResponse.json({ value: newValue });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to increment' }, { status: 500 });
+  }
+}
+```
+
+## Testing Strategy
+
+### Unit Testing
+- Test each layer independently
+- Mock dependencies when testing services
+- Test repository layer with test database
+- Use TypeScript for type safety in tests
+
+### Integration Testing
+- Test complete domain workflows
+- Test API endpoints with real database
+- Verify cross-domain interactions
+- Test error scenarios
+
+## Best Practices
+
+### Naming Conventions
+- Use descriptive, domain-specific names
+- Follow consistent naming patterns across domains
+- Use TypeScript interfaces for type safety
+- Avoid generic names that don't reflect domain concepts
+
+### Error Handling
+- Handle domain-specific errors appropriately
+- Provide meaningful error messages
+- Log errors for debugging
+- Return consistent error formats
+
+### Performance Considerations
+- Use efficient database queries
+- Implement proper indexing
+- Consider caching for frequently accessed data
+- Monitor performance metrics
+
+### Security
+- Validate all inputs
+- Use parameterized queries
+- Implement proper authentication/authorization
+- Follow security best practices for your domain
+

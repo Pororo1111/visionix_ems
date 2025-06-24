@@ -6,6 +6,8 @@ import { Sidebar } from '@/components/ui/sidebar';
 import { SidebarContent } from '@/components/ui/sidebar';
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import Navbar from '@/components/ui/navbar';
+import AppSidebar from '@/components/app-sidebar';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,23 +35,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SidebarProvider>
-          <div className="flex min-h-screen  w-full">
-            <Sidebar>
-              <SidebarContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={true}>
-                      <a href="/">대시보드</a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a href="/device">디바이스 관리</a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarContent>
-            </Sidebar>
+          <div className="flex flex-col md:flex-row min-h-screen w-full">
+            {/* 모바일 네브바 */}
+            <Navbar />
+            {/* PC 사이드바 */}
+            <div className="hidden md:flex">
+              <AppSidebar />
+            </div>
             <main className="flex-1 bg-background min-h-screen h-full w-full">
               {children}
             </main>

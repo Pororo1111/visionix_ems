@@ -4,12 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export default function DeviceForm() {
+export default function DeviceForm({ onCreated }: { onCreated?: () => void }) {
   const [form, setForm] = useState({
     device_id: '',
-    serial_no: '',
+    ip: '',
     location: '',
-    status_interval: 60,
   });
   const [loading, startTransition] = useTransition();
 
@@ -22,11 +21,10 @@ export default function DeviceForm() {
     await fetch('/api/device', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, status_interval: Number(form.status_interval) }),
+      body: JSON.stringify(form),
     });
-    setForm({ device_id: '', serial_no: '', location: '', status_interval: 60 });
-    // 새로고침(SSR 목록 반영)
-    startTransition(() => window.location.reload());
+    setForm({ device_id: '', ip: '', location: '' });
+    if (onCreated) startTransition(() => onCreated());
   };
 
   return (
@@ -36,16 +34,12 @@ export default function DeviceForm() {
         <Input id="device_id" name="device_id" value={form.device_id} onChange={handleChange} required />
       </div>
       <div>
-        <Label htmlFor="serial_no">Serial No</Label>
-        <Input id="serial_no" name="serial_no" value={form.serial_no} onChange={handleChange} required />
+        <Label htmlFor="ip">IP 주소</Label>
+        <Input id="ip" name="ip" value={form.ip} onChange={handleChange} required />
       </div>
-      <div>
+      <div className="col-span-2">
         <Label htmlFor="location">설치 위치</Label>
         <Input id="location" name="location" value={form.location} onChange={handleChange} required />
-      </div>
-      <div>
-        <Label htmlFor="status_interval">상태 전송 주기(초)</Label>
-        <Input id="status_interval" name="status_interval" type="number" value={form.status_interval} onChange={handleChange} required />
       </div>
       <div className="col-span-2 text-right">
         <Button type="submit" disabled={loading}>{loading ? '등록 중...' : '디바이스 등록'}</Button>

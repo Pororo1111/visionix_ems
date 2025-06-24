@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { listDevices, registerDevice } from '@/domain/device/service/device.service';
 import type { DeviceCreateRequest } from '@/domain/device/dto/device.dto';
 
-// 디바이스 목록 조회
-export async function GET() {
-  const devices = await listDevices();
-  return NextResponse.json(devices);
+// 디바이스 목록 조회 (페이징)
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '10', 10);
+  const result = await listDevices(page, limit);
+  return NextResponse.json(result);
 }
 
 // 디바이스 생성

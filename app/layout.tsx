@@ -42,7 +42,7 @@ export default function RootLayout({
             <div className="hidden md:flex">
               <AppSidebar />
             </div>
-            <main className="flex-1 bg-background min-h-screen h-full w-full">
+            <main className="flex-1 bg-background min-h-screen h-full w-full overflow-x-hidden">
               {children}
             </main>
           </div>

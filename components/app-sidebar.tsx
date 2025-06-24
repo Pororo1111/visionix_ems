@@ -75,14 +75,6 @@ export default function AppSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link href="#" onClick={handleMenuClick}>
-                  <User className="w-4 h-4 mr-2" />
-                  <span>내 정보</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="#" onClick={handleMenuClick}>
                   <Settings className="w-4 h-4 mr-2" />
                   <span>설정</span>
                 </Link>

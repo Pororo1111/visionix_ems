@@ -5,6 +5,7 @@ export interface DeviceResponse extends Device {}
 
 // Device 생성 요청 DTO
 export interface DeviceCreateRequest {
+  device_id: string;
   ip: string;
   location: string;
   online?: boolean; // 기본값 false

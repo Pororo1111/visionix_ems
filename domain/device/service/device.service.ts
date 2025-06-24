@@ -9,9 +9,9 @@ export async function listDevices(page: number, limit: number): Promise<{ items:
 
 // 디바이스 생성 서비스
 export async function registerDevice(data: DeviceCreateRequest): Promise<Device> {
-  // online이 undefined면 false로, created_at은 DB에서 자동 생성
+  // device_id와 ip를 분리하여 저장
   return repository.createDevice({
-    device_id: data.ip, // device_id를 ip로 지정(혹은 별도 처리 필요시 수정)
+    device_id: data.device_id,
     ip: data.ip,
     location: data.location,
     online: data.online ?? false,

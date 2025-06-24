@@ -3,6 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
+# Visionix EMS 폴더 구조 가이드
 # Next.js 15 + TypeScript + Drizzle ORM Project Structure
 
 ## Project Overview
@@ -16,131 +17,133 @@ This is a full-stack web application with counter and guestbook features using N
 - **Forms**: React Hook Form, Zod validation
 - **State**: React hooks (useState, useEffect)
 
-## Project Structure
+## 프로젝트 루트 구조
 ```
-src/
+visionix_ems/
 ├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   │   ├── counter/
-│   │   └── guestbook/
-│   ├── components/        # Page-specific components
-│   ├── globals.css
-│   ├── layout.tsx
+├── components/             # React 컴포넌트
+├── domain/                 # 도메인 주도 설계
+├── lib/                    # 유틸리티 및 설정
+├── hooks/                  # 커스텀 React 훅
+├── db/                     # 데이터베이스 마이그레이션
+├── public/                 # 정적 파일
+├── .cursor/                # Cursor IDE 설정
+├── .vscode/                # VS Code 설정
+├── node_modules/           # 의존성 패키지
+├── package.json            # 프로젝트 설정
+├── drizzle.config.ts       # Drizzle ORM 설정
+├── tsconfig.json           # TypeScript 설정
+├── next.config.ts          # Next.js 설정
+└── docker-compose.yml      # Docker 설정
+```
+
+## 앱 구조 (Next.js App Router)
+```
+app/
+├── layout.tsx              # 루트 레이아웃
+├── page.tsx                # 메인 페이지
+├── globals.css             # 전역 스타일
+├── favicon.ico             # 파비콘
+├── device/                 # 디바이스 페이지
 │   └── page.tsx
-├── components/            # Shared UI components
-│   └── ui/               # shadcn/ui components
-├── db/                   # Database migrations
-│   └── migrations/
-├── domain/               # Domain-driven architecture
-│   ├── counter/
-│   │   ├── dto/
-│   │   ├── model/
-│   │   ├── repository/
-│   │   └── service/
-│   └── guestbook/
-│       ├── dto/
-│       ├── model/
-│       ├── repository/
-│       └── service/
-├── hooks/                # Custom React hooks
-└── lib/                  # Utilities and configurations
-    ├── db.ts
-    └── utils.ts
+└── api/                    # API 라우트
+    └── device/
+        └── route.ts
 ```
 
-## Key Files
-- Main entry point: [src/app/page.tsx](mdc:src/app/page.tsx)
-- Database configuration: [src/lib/db.ts](mdc:src/lib/db.ts)
-- Drizzle config: [drizzle.config.ts](mdc:drizzle.config.ts)
-- Package configuration: [package.json](mdc:package.json)
-- TypeScript config: [tsconfig.json](mdc:tsconfig.json)
-
-## Architecture Rules
-
-### Domain-Driven Structure
-Each domain follows this pattern:
+## 도메인 구조 (Domain-Driven Design)
 ```
-src/domain/{domain}/
-├── model/          # Drizzle schemas
-├── dto/            # Data transfer objects
-├── repository/     # Data access layer
-└── service/        # Business logic
+domain/
+└── device/                 # 디바이스 도메인
+    ├── model/              # 데이터베이스 스키마
+    │   └── device.ts
+    ├── dto/                # 데이터 전송 객체
+    │   └── device.dto.ts
+    ├── repository/         # 데이터 접근 계층
+    │   └── device.repository.ts
+    └── service/            # 비즈니스 로직
+        └── device.service.ts
 ```
 
-### File Naming Conventions
-- Components: PascalCase (`Counter.tsx`, `Guestbook.tsx`)
-- Services/Utils: camelCase (`counter.service.ts`)
-- Models: camelCase (`counter.ts`, `guestbook.ts`)
-- DTOs: camelCase (`counter.dto.ts`)
+## 컴포넌트 구조
+```
+components/
+├── ui/                     # 공통 UI 컴포넌트 (shadcn/ui)
+│   ├── button.tsx
+│   ├── input.tsx
+│   ├── table.tsx
+│   └── ... (기타 UI 컴포넌트들)
+└── device/                 # 디바이스 관련 컴포넌트
+    ├── device-form.tsx
+    └── device-table.tsx
+```
 
-### Component Rules
-- Client components: `"use client"` directive at top
-- Server components: no directive (default)
-- Props interfaces in same file
-- TypeScript strict mode
-- Korean comments for complex logic
+## 유틸리티 및 설정
+```
+lib/
+├── db.ts                   # 데이터베이스 연결
+└── utils.ts                # 공통 유틸리티
 
-### API Routes
-- Location: `src/app/api/{feature}/route.ts`
-- Separate functions for HTTP methods
-- Proper error handling with status codes
-- JSON responses
+hooks/
+└── use-mobile.ts           # 모바일 감지 훅
 
-### Database
-- Use Drizzle ORM
-- Schemas in `src/domain/{domain}/model/`
-- Migrations in `src/db/migrations/`
-- Connection in [src/lib/db.ts](mdc:src/lib/db.ts)
+db/
+└── migrations/             # 데이터베이스 마이그레이션
+```
 
-### Styling
-- Tailwind CSS classes
-- shadcn/ui components
-- Responsive design
-- Consistent spacing/colors
+## 설정 파일
+```
+루트 레벨 설정 파일들:
+├── package.json            # 프로젝트 의존성 및 스크립트
+├── pnpm-lock.yaml          # pnpm 잠금 파일
+├── drizzle.config.ts       # Drizzle ORM 설정
+├── tsconfig.json           # TypeScript 설정
+├── next.config.ts          # Next.js 설정
+├── next-env.d.ts           # Next.js 타입 정의
+├── postcss.config.mjs      # PostCSS 설정
+├── components.json         # shadcn/ui 설정
+├── docker-compose.yml      # Docker Compose 설정
+├── .gitignore              # Git 무시 파일
+└── README.md               # 프로젝트 문서
+```
 
-### State Management
-- Local state: `useState`
-- Server state: Server components
-- Client updates: API calls + local state refresh
+## 도메인 패턴 구조
+각 도메인은 다음 4개 폴더를 가져야 합니다:
+- `model/` - Drizzle ORM 스키마 정의
+- `dto/` - 데이터 전송 객체 및 검증 스키마
+- `repository/` - 데이터베이스 접근 로직
+- `service/` - 비즈니스 로직
 
-### Error Handling
-- Try-catch for API calls
-- User-friendly error messages
-- Loading states
+## 파일 명명 규칙
+- **컴포넌트**: kebab-case 
+- **서비스/유틸리티**: kebab-case (예: `device.service.ts`)
+- **모델**: kebab-case (예: `device.ts`)
+- **DTO**: kebab-case (예: `device.dto.ts`)
+- **설정 파일**: kebab-case (예: `drizzle.config.ts`)
 
-### Performance
-- Server components for initial load
-- Suspense for loading states
-- Proper pagination
+## 새 도메인 추가 시 구조
+새로운 도메인을 추가할 때는 다음 구조를 따라야 합니다:
+```
+domain/{new-domain}/
+├── model/
+│   └── {new-domain}.ts
+├── dto/
+│   └── {new-domain}.dto.ts
+├── repository/
+│   └── {new-domain}.repository.ts
+└── service/
+    └── {new-domain}.service.ts
+```
 
-## Development Guidelines
+그리고 관련 컴포넌트와 API 라우트도 추가:
+```
+components/{new-domain}/
+└── {new-domain}-*.tsx
 
-### Adding New Features
-1. Create domain directory if needed
-2. Define model schema
-3. Create DTO interfaces
-4. Implement repository logic
-5. Add service layer
-6. Create API routes
-7. Build UI components
-8. Integrate into pages
+app/{new-domain}/
+└── page.tsx
 
-### Database Changes
-1. Modify model schema
-2. Run `npm run db:generate`
-3. Run `npm run db:migrate`
-
-### Component Development
-1. Define TypeScript interfaces
-2. Specify proper prop types
-3. Handle error/loading states
-4. Consider accessibility
-5. Apply responsive design
-
-## Code Quality
-- Follow ESLint rules
-- Use TypeScript strict mode
-- Meaningful variable/function names
-- Comments only for complex logic
-- Korean comments for project context
+app/api/{new-domain}/
+└── route.ts
+```
 

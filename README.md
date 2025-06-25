@@ -172,6 +172,71 @@ docker-compose -f docker-compose.prod.yml down
 - **Prometheus**: http://localhost:9090
 
 ---
+
+## 📡 IoT 디바이스 서버 설정
+
+IoT 디바이스에서 EMS 서버로 상태 정보를 전송하기 위한 간단한 웹서버를 설정할 수 있습니다.
+
+### 디바이스 서버 설치 및 실행
+
+```bash
+# 1. IoT 디바이스 서버 저장소 클론
+git clone https://github.com/Pororo1111/visionix_device_webserver.git
+cd visionix_device_webserver
+
+# 2. Python 가상환경 생성 및 활성화
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate
+
+# 3. Python 의존성 설치
+pip install -r requirements.txt
+
+# 4. 서버 실행
+python app.py
+
+# 5. 디바이스 서버가 http://localhost:5000 에서 실행됩니다
+```
+
+### 디바이스 등록 및 상태 전송
+
+```bash
+# EMS 서버에 디바이스 등록 (한 번만 실행)
+curl -X POST http://your-ems-server:3000/api/device \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "IoT Device 1",
+    "location": "Office Room 101",
+    "ip": "192.168.1.100",
+    "uniqueId": "device-001"
+  }'
+
+# 디바이스 상태 전송 (주기적으로 실행)
+curl -X POST http://your-ems-server:3000/api/targets \
+  -H "Content-Type: application/json" \
+  -d '{
+    "uniqueId": "device-001",
+    "status": "online",
+    "timestamp": "2025-01-01T00:00:00Z"
+  }'
+```
+
+### 자동화 스크립트 예시
+
+디바이스에서 주기적으로 상태를 전송하려면 cron job을 설정하세요:
+
+```bash
+# crontab -e 명령으로 편집
+# 매 5분마다 상태 전송
+*/5 * * * * curl -X POST http://your-ems-server:3000/api/targets -H "Content-Type: application/json" -d '{"uniqueId":"device-001","status":"online","timestamp":"'$(date -Iseconds)'"}'
+```
+
+---
+
 ## 🛠️ 개발 도구
 
 ### 스크립트 명령어

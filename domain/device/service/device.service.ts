@@ -21,4 +21,12 @@ export async function registerDevice(data: DeviceCreateRequest): Promise<Device>
 // 디바이스 단건 조회 서비스
 export async function getDevice(deviceId: string): Promise<Device | undefined> {
   return repository.getDeviceById(deviceId);
+}
+
+// 전체 디바이스 IP만 반환
+export async function getAllDeviceIps(): Promise<string[]> {
+  const devices = await repository.getAllDevices();
+  return devices
+    .map((d) => d.ip)
+    .filter((ip): ip is string => typeof ip === 'string' && ip.length > 0);
 } 

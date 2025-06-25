@@ -1,0 +1,112 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-prod
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - web
+      - grafana
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: web-prod
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-postgres}@db:5432/visionix_ems
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  db:
+    image: timescale/timescaledb:latest-pg17
+    container_name: postgres17-timescale-prod
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: visionix_ems
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    container_name: prometheus-prod
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=365d'
+      - '--storage.tsdb.retention.size=100GB'
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-prod
+    ports:
+      - "4000:3000"
+    env_file:
+      - .env.grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_SERVER_DOMAIN=${GRAFANA_DOMAIN:-localhost}
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost}/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # backup:
+  #   image: alpine:latest
+  #   container_name: backup-prod
+  #   volumes:
+  #     - prometheus_data:/prometheus:ro
+  #     - grafana_data:/grafana:ro
+  #     - ./backups:/backup
+  #   command: |
+  #     sh -c "
+  #       while true; do
+  #         DATE=$$(date +%Y%m%d_%H%M%S)
+  #         tar -czf /backup/prometheus_backup_$$DATE.tar.gz -C /prometheus .
+  #         tar -czf /backup/grafana_backup_$$DATE.tar.gz -C /grafana .
+  #         find /backup -name '*.tar.gz' -mtime +7 -delete
+  #         sleep 86400
+  #       done
+  #     "
+  #   restart: unless-stopped
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:
+  prometheus_data:
+  grafana_data:

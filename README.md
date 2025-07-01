@@ -146,6 +146,17 @@ docker-compose logs -f
 ```
 
 ### 프로덕션 환경
+
+#### 🚀 자동 실행 스크립트 (권장)
+```bash
+# 프로덕션 환경 자동 시작
+./start-production.sh
+
+# 프로덕션 환경 중지
+./stop-production.sh
+```
+
+#### 📋 수동 명령어
 ```bash
 # 이미지 재빌드
 docker-compose -f docker-compose.prod.yml build 

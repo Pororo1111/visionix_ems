@@ -8,5 +8,4 @@ export interface DeviceCreateRequest {
   device_id: string;
   ip: string;
   location: string;
-  online?: boolean; // 기본값 false
 } 

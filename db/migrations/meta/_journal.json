@@ -8,6 +8,13 @@
       "when": 1750735185240,
       "tag": "0000_late_sandman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1751350246209,
+      "tag": "0001_spotty_catseye",
+      "breakpoints": true
     }
   ]
 }

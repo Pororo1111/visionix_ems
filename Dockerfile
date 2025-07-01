@@ -38,12 +38,22 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# pnpm 설치 추가
+RUN npm install -g pnpm
+
 # 시스템 사용자 생성
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # 빌드된 파일 복사
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder /app/db ./db
+
+# node_modules 복사 (drizzle-kit용)
+COPY --from=deps /app/node_modules ./node_modules
 
 # 환경변수 파일 복사 (런타임에서 사용)
 COPY --from=builder /app/.env.production ./.env.production

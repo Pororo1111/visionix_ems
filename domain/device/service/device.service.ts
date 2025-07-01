@@ -14,7 +14,6 @@ export async function registerDevice(data: DeviceCreateRequest): Promise<Device>
     device_id: data.device_id,
     ip: data.ip,
     location: data.location,
-    online: data.online ?? false,
   });
 }
 

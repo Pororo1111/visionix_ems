@@ -2,14 +2,12 @@
 import { Table } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 interface Device {
   device_id: string;
   ip: string;
   location: string;
   created_at: string;
-  online: boolean;
 }
 
 interface DeviceTableProps {
@@ -32,14 +30,13 @@ export default function DeviceTable({ devices, total, page, limit, onPageChange,
               <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">Device ID</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">IP 주소</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">설치 위치</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">상태</th>
               <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">생성일</th>
             </tr>
           </thead>
           <tbody>
             {devices.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-8 text-gray-400">등록된 디바이스가 없습니다.</td>
+                <td colSpan={4} className="text-center py-8 text-gray-400">등록된 디바이스가 없습니다.</td>
               </tr>
             ) : (
               devices.map((d, idx) => (
@@ -53,13 +50,6 @@ export default function DeviceTable({ devices, total, page, limit, onPageChange,
                   <td className="px-4 py-2 font-mono text-sm">{d.device_id}</td>
                   <td className="px-4 py-2">{d.ip}</td>
                   <td className="px-4 py-2">{d.location}</td>
-                  <td className="px-4 py-2">
-                    {d.online ? (
-                      <Badge variant="secondary">온라인</Badge>
-                    ) : (
-                      <Badge variant="destructive">오프라인</Badge>
-                    )}
-                  </td>
                   <td className="px-4 py-2 whitespace-nowrap">{d.created_at ? new Date(d.created_at).toLocaleString() : '-'}</td>
                 </tr>
               ))

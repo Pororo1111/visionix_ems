@@ -3,7 +3,7 @@ export default function Home() {
     <div className="w-full h-full flex-1">
       {/* Grafana 대시보드 임베딩. 실제 URL로 교체 필요 */}
       <iframe
-        src="http://localhost/grafana/goto/5c-UG7yHR?orgId=1"
+        src="http://localhost/grafana/dashboards"
         width="100%"
         height="100%"
         style={{ minHeight: '100vh', border: 'none', display: 'block' }}

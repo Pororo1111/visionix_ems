@@ -8,6 +8,7 @@ import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import Navbar from '@/components/ui/navbar';
 import AppSidebar from '@/components/app-sidebar';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default function RootLayout({
             </main>
           </div>
         </SidebarProvider>
+        <Toaster />
       </body>
     </html>
   );

@@ -26,13 +26,25 @@ export default function DevicePage() {
     startTransition(() => fetchDevices(page));
   };
 
+  const handleDeviceDeleted = () => {
+    startTransition(() => fetchDevices(page));
+  };
+
   return (
     <div className="max-w-3xl mx-auto py-8 relative min-h-[600px]">
       <h1 className="text-2xl font-bold mb-6">디바이스 관리</h1>
       <DeviceForm onCreated={handleCreated} />
       <div className="relative">
         <div className={loading ? 'pointer-events-none opacity-50 transition-all' : ''}>
-          <DeviceTable devices={devices} total={total} page={page} limit={LIMIT} onPageChange={setPage} className="" />
+          <DeviceTable 
+            devices={devices} 
+            total={total} 
+            page={page} 
+            limit={LIMIT} 
+            onPageChange={setPage} 
+            onDeviceDeleted={handleDeviceDeleted}
+            className="" 
+          />
         </div>
         {loading && (
           <div className="absolute inset-0 bg-white/60 dark:bg-black/40 flex items-center justify-center z-30 rounded-lg">

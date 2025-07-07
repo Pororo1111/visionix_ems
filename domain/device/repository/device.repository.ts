@@ -34,4 +34,10 @@ export async function getDeviceById(deviceId: string): Promise<Device | undefine
   return found;
 }
 
+// 디바이스 삭제
+export async function deleteDevice(deviceId: string): Promise<boolean> {
+  const [deleted] = await db.delete(device).where(eq(device.device_id, deviceId)).returning();
+  return !!deleted;
+}
+
 // 디바이스 삭제 등 추가 구현 필요시 여기에 작성 

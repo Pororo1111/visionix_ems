@@ -1112,18 +1112,120 @@
         "fieldConfig": {
           "defaults": {
             "color": {
-              "mode": "palette-classic"
+              "mode": "thresholds"
             },
             "custom": {
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "vis": false
-              }
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "inspect": false,
+              "filterable": true,
+              "minWidth": 100
             },
-            "mappings": []
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "color": "#E24D42",
+                    "index": 0,
+                    "text": "🔴 오프라인"
+                  },
+                  "1": {
+                    "color": "#7EB26D",
+                    "index": 1,
+                    "text": "🟢 온라인"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "#E24D42",
+                  "value": null
+                },
+                {
+                  "color": "#7EB26D",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
           },
-          "overrides": []
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "메트릭"
+              },
+              "properties": [
+                {
+                  "id": "custom.hideFrom",
+                  "value": {
+                    "legend": false,
+                    "tooltip": false,
+                    "vis": true
+                  }
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "디바이스 IP"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 250
+                },
+                {
+                  "id": "custom.align",
+                  "value": "left"
+                },
+                {
+                  "id": "custom.cellOptions",
+                  "value": {
+                    "type": "text"
+                  }
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "상태"
+              },
+              "properties": [
+                {
+                  "id": "custom.cellOptions",
+                  "value": {
+                    "mode": "color-background",
+                    "type": "color-background"
+                  }
+                },
+                {
+                  "id": "custom.align",
+                  "value": "center"
+                },
+                {
+                  "id": "custom.width",
+                  "value": 150
+                },
+                {
+                  "id": "custom.fontSize",
+                  "value": "14px"
+                },
+                {
+                  "id": "custom.fontWeight",
+                  "value": "bold"
+                }
+              ]
+            }
+          ]
         },
         "gridPos": {
           "h": 8,
@@ -1133,37 +1235,53 @@
         },
         "id": 14,
         "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom",
-            "showLegend": true
-          },
-          "pieType": "pie",
-          "reduceOptions": {
-            "calcs": [
-              "lastNotNull"
+          "showHeader": true,
+          "cellHeight": "md",
+          "footer": {
+            "show": false,
+            "reducer": [
+              "sum"
             ],
-            "fields": "",
-            "values": false
-          },
-          "tooltip": {
-            "mode": "single",
-            "sort": "none"
+            "countRows": false,
+            "fields": ""
           }
         },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true,
+                "__name__": true,
+                "group": true,
+                "job": true
+              },
+              "indexByName": {
+                "Instance": 0,
+                "Value": 1
+              },
+              "renameByName": {
+                "Instance": "디바이스 IP",
+                "Value": "상태"
+              }
+            }
+          }
+        ],
+        "pluginVersion": "10.0.0",
         "targets": [
           {
             "datasource": {
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "expr": "sum by (instance) (app_status)",
-            "legendFormat": "{{instance}}",
+            "expr": "up{job=\"devices\"}",
+            "format": "table",
+            "instant": true,
             "refId": "A"
           }
         ],
-        "title": "디바이스별 AI 검사 상태 분포",
-        "type": "piechart"
+        "title": "🖥️ 전체 디바이스 헬스체크 상태",
+        "type": "table"
       }
     ],
     "refresh": "10s",
@@ -1175,44 +1293,14 @@
       "ai-monitoring",
       "iot"
     ],
-    "templating": {
-      "list": [
-        {
-          "current": {
-            "selected": false,
-            "text": "All",
-            "value": "$__all"
-          },
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "definition": "label_values(app_status, instance)",
-          "hide": 0,
-          "includeAll": true,
-          "label": "디바이스 선택",
-          "multi": false,
-          "name": "device_ip",
-          "options": [],
-          "query": {
-            "query": "label_values(app_status, instance)",
-            "refId": "StandardVariableQuery"
-          },
-          "refresh": 2,
-          "regex": "",
-          "skipUrlSync": false,
-          "sort": 0,
-          "type": "query"
-        }
-      ]
-    },
+
     "time": {
       "from": "now-6h",
       "to": "now"
     },
     "timepicker": {},
     "timezone": "",
-    "title": "Visionix EMS - AI 검사 결과 대시보드 (2500개 IoT 디바이스)",
+    "title": "Visionix EMS - AI 검사 결과 대시보드",
     "version": 1,
     "weekStart": ""
   } 

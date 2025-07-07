@@ -9,7 +9,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data_local:/var/lib/postgresql/data
     restart: unless-stopped
 
   prometheus:
@@ -17,13 +17,12 @@ services:
     container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+      - prometheus_data_local:/prometheus
     ports:
       - "9090:9090"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=365d'
     restart: unless-stopped
 
   grafana:
@@ -32,12 +31,19 @@ services:
     ports:
       - "4000:3000"
     volumes:
-      - grafana_data:/var/lib/grafana
+      - grafana_data_local:/var/lib/grafana
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     environment:
+      - GF_FEATURE_TOGGLES_ENABLE=provisioning
       - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      # - GF_SERVER_DOMAIN=localhost
+      # - GF_SERVER_ROOT_URL=http://localhost/grafana
+      # - GF_SERVER_SERVE_FROM_SUB_PATH=true
     restart: unless-stopped
 
 volumes:
-  db_data:
-  prometheus_data:
-  grafana_data:
+  db_data_local:
+  prometheus_data_local:
+  grafana_data_local:

@@ -28,4 +28,9 @@ export async function getAllDeviceIps(): Promise<string[]> {
   return devices
     .map((d) => d.ip)
     .filter((ip): ip is string => typeof ip === 'string' && ip.length > 0);
+}
+
+// 디바이스 삭제 서비스
+export async function removeDevice(deviceId: string): Promise<boolean> {
+  return repository.deleteDevice(deviceId);
 } 

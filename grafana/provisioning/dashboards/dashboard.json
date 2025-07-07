@@ -36,7 +36,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "green",
+                  "color": "blue",
                   "value": null
                 }
               ]
@@ -73,11 +73,11 @@
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "expr": "sum(app_status)",
+            "expr": "count(app_status)",
             "refId": "A"
           }
         ],
-        "title": "정상 상태 디바이스 수",
+        "title": "전체 디바이스 수",
         "type": "stat"
       },
       {
@@ -95,7 +95,7 @@
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "red",
+                  "color": "green",
                   "value": null
                 }
               ]
@@ -132,11 +132,137 @@
               "type": "prometheus",
               "uid": "prometheus"
             },
+            "expr": "sum(app_status)",
+            "refId": "A"
+          }
+        ],
+        "title": "AI 검사 정상 디바이스 수",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        },
+        "id": 3,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.0.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
             "expr": "count(app_status) - sum(app_status)",
             "refId": "A"
           }
         ],
-        "title": "비정상 상태 디바이스 수",
+        "title": "AI 검사 비정상 디바이스 수",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "yellow",
+                  "value": 90
+                },
+                {
+                  "color": "red",
+                  "value": 95
+                }
+              ]
+            },
+            "unit": "percent"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        },
+        "id": 4,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "textMode": "auto"
+        },
+        "pluginVersion": "10.0.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "expr": "(sum(app_status) / count(app_status)) * 100",
+            "refId": "A"
+          }
+        ],
+        "title": "AI 검사 정상 비율",
         "type": "stat"
       },
       {
@@ -177,7 +303,7 @@
           "x": 0,
           "y": 8
         },
-        "id": 4,
+        "id": 5,
         "options": {
           "colorMode": "value",
           "graphMode": "area",
@@ -244,7 +370,7 @@
           "x": 6,
           "y": 8
         },
-        "id": 5,
+        "id": 6,
         "options": {
           "colorMode": "value",
           "graphMode": "area",
@@ -293,25 +419,25 @@
                 },
                 {
                   "color": "yellow",
-                  "value": 10
+                  "value": 70
                 },
                 {
                   "color": "red",
-                  "value": 50
+                  "value": 85
                 }
               ]
             },
-            "unit": "short"
+            "unit": "percent"
           },
           "overrides": []
         },
         "gridPos": {
           "h": 8,
           "w": 6,
-          "x": 0,
-          "y": 24
+          "x": 12,
+          "y": 8
         },
-        "id": 9,
+        "id": 7,
         "options": {
           "colorMode": "value",
           "graphMode": "area",
@@ -333,11 +459,11 @@
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "expr": "count(system_cpu_percent > 85)",
+            "expr": "avg(system_disk_usage_percent)",
             "refId": "A"
           }
         ],
-        "title": "CPU 85% 초과 디바이스 수",
+        "title": "평균 디스크 사용률",
         "type": "stat"
       },
       {
@@ -375,10 +501,10 @@
         "gridPos": {
           "h": 8,
           "w": 6,
-          "x": 6,
-          "y": 24
+          "x": 18,
+          "y": 8
         },
-        "id": 10,
+        "id": 8,
         "options": {
           "colorMode": "value",
           "graphMode": "area",
@@ -400,11 +526,11 @@
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "expr": "count(system_memory_percent > 85)",
+            "expr": "count(system_cpu_percent > 85)",
             "refId": "A"
           }
         ],
-        "title": "메모리 85% 초과 디바이스 수",
+        "title": "CPU 85% 초과 디바이스 수",
         "type": "stat"
       },
       {
@@ -455,11 +581,11 @@
                 },
                 {
                   "color": "yellow",
-                  "value": 70
+                  "value": 90
                 },
                 {
                   "color": "red",
-                  "value": 85
+                  "value": 95
                 }
               ]
             },
@@ -473,7 +599,7 @@
           "x": 0,
           "y": 16
         },
-        "id": 6,
+        "id": 9,
         "options": {
           "legend": {
             "calcs": [],
@@ -492,11 +618,11 @@
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "expr": "avg(system_cpu_percent)",
+            "expr": "(sum(app_status) / count(app_status)) * 100",
             "refId": "A"
           }
         ],
-        "title": "전체 디바이스 평균 CPU 사용률 트렌드",
+        "title": "AI 검사 정상 비율 트렌드",
         "type": "timeseries"
       },
       {
@@ -565,7 +691,7 @@
           "x": 12,
           "y": 16
         },
-        "id": 7,
+        "id": 10,
         "options": {
           "legend": {
             "calcs": [],
@@ -584,11 +710,11 @@
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "expr": "avg(system_memory_percent)",
+            "expr": "avg(system_cpu_percent)",
             "refId": "A"
           }
         ],
-        "title": "전체 디바이스 평균 메모리 사용률 트렌드",
+        "title": "평균 CPU 사용률 트렌드",
         "type": "timeseries"
       },
       {
@@ -632,7 +758,7 @@
             {
               "matcher": {
                 "id": "byName",
-                "options": "이름"
+                "options": "Instance"
               },
               "properties": [
                 {
@@ -673,8 +799,8 @@
         "gridPos": {
           "h": 8,
           "w": 12,
-          "x": 12,
-          "y": 0
+          "x": 0,
+          "y": 24
         },
         "id": 11,
         "options": {
@@ -702,7 +828,7 @@
                 "Value": 2
               },
               "renameByName": {
-                "__name__": "이름"
+                "__name__": "메트릭"
               }
             }
           }
@@ -714,13 +840,13 @@
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "expr": "topk(10, system_cpu_percent)",
+            "expr": "topk(20, system_cpu_percent)",
             "format": "table",
             "instant": true,
             "refId": "A"
           }
         ],
-        "title": "CPU 사용률 상위 10개 디바이스",
+        "title": "CPU 사용률 상위 20개 디바이스",
         "type": "table"
       },
       {
@@ -764,7 +890,7 @@
             {
               "matcher": {
                 "id": "byName",
-                "options": "이름"
+                "options": "Instance"
               },
               "properties": [
                 {
@@ -806,7 +932,7 @@
           "h": 8,
           "w": 12,
           "x": 12,
-          "y": 8
+          "y": 24
         },
         "id": 12,
         "options": {
@@ -834,7 +960,7 @@
                 "Value": 2
               },
               "renameByName": {
-                "__name__": "이름"
+                "__name__": "메트릭"
               }
             }
           }
@@ -846,34 +972,335 @@
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "expr": "topk(10, system_memory_percent)",
+            "expr": "topk(20, system_memory_percent)",
             "format": "table",
             "instant": true,
             "refId": "A"
           }
         ],
-        "title": "메모리 사용률 상위 10개 디바이스",
+        "title": "메모리 사용률 상위 20개 디바이스",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "inspect": false,
+              "filterable": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Instance"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 200
+                },
+                {
+                  "id": "custom.align",
+                  "value": "left"
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Value"
+              },
+              "properties": [
+                {
+                  "id": "custom.cellOptions",
+                  "value": {
+                    "mode": "color-background",
+                    "type": "color-background"
+                  }
+                },
+                {
+                  "id": "custom.align",
+                  "value": "center"
+                },
+                {
+                  "id": "custom.width",
+                  "value": 100
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 32
+        },
+        "id": 13,
+        "options": {
+          "showHeader": true,
+          "cellHeight": "sm",
+          "footer": {
+            "show": false,
+            "reducer": [
+              "sum"
+            ],
+            "countRows": false,
+            "fields": ""
+          }
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true
+              },
+              "indexByName": {
+                "__name__": 0,
+                "Instance": 1,
+                "Value": 2
+              },
+              "renameByName": {
+                "__name__": "메트릭",
+                "Value": "AI 검사 상태"
+              }
+            }
+          }
+        ],
+        "pluginVersion": "10.0.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "expr": "app_status == 0",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "title": "AI 검사 실패 디바이스 목록",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "inspect": false,
+              "filterable": true,
+              "minWidth": 100
+            },
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "color": "#E24D42",
+                    "index": 0,
+                    "text": "🔴 오프라인"
+                  },
+                  "1": {
+                    "color": "#7EB26D",
+                    "index": 1,
+                    "text": "🟢 온라인"
+                  }
+                },
+                "type": "value"
+              }
+            ],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "#E24D42",
+                  "value": null
+                },
+                {
+                  "color": "#7EB26D",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "메트릭"
+              },
+              "properties": [
+                {
+                  "id": "custom.hideFrom",
+                  "value": {
+                    "legend": false,
+                    "tooltip": false,
+                    "vis": true
+                  }
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "디바이스 IP"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 250
+                },
+                {
+                  "id": "custom.align",
+                  "value": "left"
+                },
+                {
+                  "id": "custom.cellOptions",
+                  "value": {
+                    "type": "text"
+                  }
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "상태"
+              },
+              "properties": [
+                {
+                  "id": "custom.cellOptions",
+                  "value": {
+                    "mode": "color-background",
+                    "type": "color-background"
+                  }
+                },
+                {
+                  "id": "custom.align",
+                  "value": "center"
+                },
+                {
+                  "id": "custom.width",
+                  "value": 150
+                },
+                {
+                  "id": "custom.fontSize",
+                  "value": "14px"
+                },
+                {
+                  "id": "custom.fontWeight",
+                  "value": "bold"
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 32
+        },
+        "id": 14,
+        "options": {
+          "showHeader": true,
+          "cellHeight": "md",
+          "footer": {
+            "show": false,
+            "reducer": [
+              "sum"
+            ],
+            "countRows": false,
+            "fields": ""
+          }
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Time": true,
+                "__name__": true,
+                "group": true,
+                "job": true
+              },
+              "indexByName": {
+                "Instance": 0,
+                "Value": 1
+              },
+              "renameByName": {
+                "Instance": "디바이스 IP",
+                "Value": "상태"
+              }
+            }
+          }
+        ],
+        "pluginVersion": "10.0.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "expr": "up{job=\"devices\"}",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "title": "🖥️ 전체 디바이스 헬스체크 상태",
         "type": "table"
       }
     ],
-    "refresh": "5s",
+    "refresh": "10s",
     "schemaVersion": 38,
     "style": "dark",
     "tags": [
       "visionix",
       "device",
-      "webserver"
+      "ai-monitoring",
+      "iot"
     ],
-    "templating": {
-      "list": []
-    },
+
     "time": {
-      "from": "now-1h",
+      "from": "now-6h",
       "to": "now"
     },
     "timepicker": {},
     "timezone": "",
-    "title": "Visionix Device WebServer 대시보드 (대규모 디바이스)",
+    "title": "Visionix EMS - AI 검사 결과 대시보드",
     "version": 1,
     "weekStart": ""
   } 

@@ -1,8 +1,8 @@
 services:
   nginx:
     image: nginx:alpine
-    container_name: nginx-prod
-    ports:
+      - web
+      - prometheus
       - "80:80"
     volumes:
       - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
@@ -27,13 +27,16 @@ services:
       - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-postgres}@db:5432/visionix_ems
     depends_on:
       - db
-    command: ["sh", "-c", "echo '🔄 데이터베이스 연결을 기다리는 중...' 
-    && sleep 5 
-    && echo '🚀 마이그레이션을 시작합니다...' 
-    && pnpm exec drizzle-kit migrate 
-    && echo '✅ 마이그레이션 완료' 
-    && echo '🌐 애플리케이션을 시작합니다...' 
-    && node server.js"]
+    command: >
+      sh -c "
+        echo '🔄 데이터베이스 연결을 기다리는 중...'
+        sleep 5
+        echo '🚀 마이그레이션을 시작합니다...'
+        pnpm exec drizzle-kit migrate
+        echo '✅ 마이그레이션 완료'
+        echo '🌐 애플리케이션을 시작합니다...'
+        node server.js
+      "
     restart: unless-stopped
     networks:
       - app-network
@@ -45,6 +48,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
       POSTGRES_DB: visionix_ems
+
     volumes:
       - db_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -66,28 +70,28 @@ services:
     networks:
       - app-network
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana-prod
-    user: root
-    ports:
-      - "4000:3000"
-    env_file:
-      - .env.grafana
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-    environment:
-      - GF_FEATURE_TOGGLES_ENABLE=provisioning  
-      - GF_SECURITY_ALLOW_EMBEDDING=true
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-      - GF_SERVER_DOMAIN=${GRAFANA_DOMAIN:-localhost}
-      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost}/grafana
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
-    restart: unless-stopped
-    networks:
-      - app-network
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana-prod
+  #   user: root
+  #   ports:
+  #     - "4000:3000"
+  #   env_file:
+  #     - .env.grafana
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #     - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+  #     - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+  #   environment:
+  #     - GF_FEATURE_TOGGLES_ENABLE=provisioning  
+  #     - GF_SECURITY_ALLOW_EMBEDDING=true
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+  #     - GF_SERVER_DOMAIN=${GRAFANA_DOMAIN:-localhost}
+  #     - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost}/grafana
+  #     - GF_SERVER_SERVE_FROM_SUB_PATH=true
+  #   restart: unless-stopped
+  #   networks:
+  #     - app-network
 
   # backup:
   #   image: alpine:latest
@@ -117,4 +121,4 @@ networks:
 volumes:
   db_data:
   prometheus_data:
-  grafana_data:
+  # grafana_data:

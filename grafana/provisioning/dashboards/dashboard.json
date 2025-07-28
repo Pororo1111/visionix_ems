@@ -1302,5 +1302,6 @@
     "timezone": "",
     "title": "Visionix EMS - AI 검사 결과 대시보드",
     "version": 1,
-    "weekStart": ""
+    "weekStart": "",
+    "uid": "visionix-ems"
   } 

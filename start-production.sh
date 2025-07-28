@@ -72,25 +72,7 @@ EOF
     print_warning "⚠️  .env.production 파일을 생성했습니다. 보안을 위해 DB_PASSWORD를 변경해주세요!"
 fi
 
-if [ ! -f ".env.grafana" ]; then
-    print_warning ".env.grafana 파일이 없습니다. 생성 중..."
-    cat > .env.grafana << 'EOF'
-# ===========================================
-# Grafana 환경변수
-# ===========================================
 
-GRAFANA_PASSWORD=admin
-
-# 도메인이 있는 경우 (https 사용)
-# GRAFANA_DOMAIN=your-domain.com
-# GRAFANA_ROOT_URL=https://your-domain.com/grafana
-
-# 도메인이 없는 경우 (로컬 환경)
-GRAFANA_DOMAIN=localhost
-GRAFANA_ROOT_URL=http://localhost/grafana
-EOF
-    print_warning "⚠️  .env.grafana 파일을 생성했습니다. 필요시 도메인 설정을 변경해주세요!"
-fi
 
 print_success "환경변수 파일 확인 완료"
 
@@ -132,7 +114,6 @@ echo "🎉 Visionix EMS 프로덕션 환경이 성공적으로 시작되었습�
 echo ""
 echo "📋 접속 정보:"
 echo "  🌐 웹 애플리케이션: http://localhost"
-echo "  📊 Grafana:        http://localhost:4000"
 echo "  📈 Prometheus:     http://localhost:9090"
 echo ""
 echo "📝 유용한 명령어:"

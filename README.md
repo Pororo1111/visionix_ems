@@ -9,17 +9,12 @@
 -   📋 디바이스 등록/목록/페이징/검색
 -   🟢 디바이스 온라인 상태 실시간 표시
 -   🏷️ 설치 위치, IP, 고유 ID 관리
-    DB_PASSWORD=your_secure_password
-
-# 🚀 Visionix EMS
-
-IoT 디바이스 관리 및 실시간 모니터링 웹앱
 
 ---
 
 ## ⚡️ 빠른 시작
 
-### �️ 로컬 개발
+### 🖥️ 로컬 개발
 
 ```bash
 git clone <repository-url>
@@ -30,7 +25,6 @@ pnpm sync         # DB 스키마 동기화
 pnpm dev          # 개발 서버 실행
 # http://localhost:3000 접속
 ```
-
 
 ### 🚀 운영 배포 (Docker)
 
@@ -45,7 +39,7 @@ pnpm dev          # 개발 서버 실행
 
 ---
 
-## �️ 주요 명령어
+## 🛠️ 주요 명령어
 
 ```bash
 pnpm dev      # 개발 서버 실행

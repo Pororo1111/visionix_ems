@@ -1,14 +1,12 @@
 services:
   nginx:
     image: nginx:alpine
-      - web
-      - prometheus
+    ports:
       - "80:80"
     volumes:
       - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf
     depends_on:
       - web
-      - grafana
       - prometheus
     restart: unless-stopped
     networks:

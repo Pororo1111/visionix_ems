@@ -62,9 +62,7 @@ if [ ! -f ".env.production" ]; then
 NODE_ENV=production
 DB_PASSWORD=your_secure_password_here
 DATABASE_URL=postgresql://postgres:your_secure_password_here@db:5432/visionix_ems
-
-# 보안 설정 (프로덕션에서 반드시 변경)
-# JWT_SECRET=your-super-secret-jwt-key
+PROMETHEUS_URL=http://prometheus:9090
 
 # 기타 설정
 NEXT_TELEMETRY_DISABLED=1

@@ -94,6 +94,21 @@ export async function POST(request: NextRequest) {
                 expr: 'up{job="devices"}',
                 title: "전체 디바이스 헬스체크 상태",
             },
+            {
+                id: "ocr-time",
+                expr: "ocr_time_value",
+                title: "OCR 시간",
+            },
+            {
+                id: "ocr-server-timestamp",
+                expr: "ocr_timestamp_seconds",
+                title: "OCR 서버 타임스탬프",
+            },
+            {
+                id: "ocr-mismatch-list",
+                expr: "ocr_time_value != ocr_timestamp_seconds",
+                title: "OCR 시간 불일치 목록",
+            },
         ];
 
         // 모든 쿼리를 병렬로 실행

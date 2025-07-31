@@ -28,7 +28,10 @@ async function getInitialDashboardData(): Promise<PrometheusPanelData[]> {
     { id: 'cpu-top-20', expr: 'topk(20, system_cpu_percent)', title: 'CPU 사용률 상위 20개 디바이스' },
     { id: 'memory-top-20', expr: 'topk(20, system_memory_percent)', title: '메모리 사용률 상위 20개 디바이스' },
     { id: 'ai-failed-devices', expr: 'app_status == 0', title: 'AI 검사 실패 디바이스 목록' },
-    { id: 'device-health', expr: 'up{job="devices"}', title: '전체 디바이스 헬스체크 상태' }
+    { id: 'device-health', expr: 'up{job="devices"}', title: '전체 디바이스 헬스체크 상태' },
+    { id: 'ocr-time', expr: 'ocr_time_value', title: 'OCR 시간' },
+    { id: 'ocr-server-timestamp', expr: 'ocr_timestamp_seconds', title: 'OCR 서버 타임스탬프' },
+    { id: 'ocr-mismatch-list', expr: 'ocr_time_value != ocr_timestamp_seconds', title: 'OCR 시간 불일치 목록' }
   ];
 
   try {

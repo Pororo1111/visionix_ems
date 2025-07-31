@@ -164,4 +164,27 @@ export class PrometheusAPI {
         const result = await response.json();
         return result.data || [];
     }
+
+    async getInstantPanelData(
+        query: { id: string; expr: string; title: string }
+    ): Promise<PrometheusPanelData> {
+        try {
+            const data = await this.getCurrentValue(query.expr);
+            return {
+                id: query.id,
+                title: query.title,
+                data: data.data.result || [],
+            };
+        } catch (error) {
+            console.error(
+                `Error fetching instant panel data for ${query.id}:`,
+                error
+            );
+            return {
+                id: query.id,
+                title: query.title,
+                data: [],
+            };
+        }
+    }
 }

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__notion__create-pages",
+      "mcp__notion__fetch",
+      "mcp__notion__update-page",
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}

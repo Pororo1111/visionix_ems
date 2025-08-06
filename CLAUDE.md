@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🌏 Language and Communication Guidelines
+
+**Always respond in Korean 🇰🇷**
+- Use Korean for all technical explanations, code reviews, and problem-solving discussions
+- Include English technical terms in parentheses when necessary (e.g., 데이터베이스(Database))
+- Use friendly and easily understandable Korean expressions
+
+**Use emojis appropriately 😊**
+- Include relevant emojis in responses for friendly and intuitive communication
+- Use emojis for visual distinction of technical content (🔧 development, 🐛 bugs, ✅ completed, ⚠️ warnings, etc.)
+- Avoid excessive use, but utilize at a level that enhances readability
+
 ## Project Overview
 
 Visionix EMS is a Next.js 15 web application for IoT device management and monitoring. It provides real-time dashboard functionality with Prometheus metrics integration, device registration/management, and OCR monitoring capabilities.

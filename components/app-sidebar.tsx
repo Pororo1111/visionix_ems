@@ -14,7 +14,7 @@ import {
     SidebarSeparator,
     useSidebar,
 } from "@/components/ui/sidebar";
-import { Home, Monitor, Settings, User } from "lucide-react";
+import { Home, Monitor, Settings, User, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -28,20 +28,31 @@ export default function AppSidebar() {
     };
     return (
         <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            style={{ overflow: "visible", height: "100%" }}
-            className="min-h-0 h-full flex-none"
-        >
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4 }}
+                style={{ overflow: "visible", height: "100%" }}
+                className="min-h-0 h-full flex-none"
+            >
             <Sidebar className="bg-gradient-to-b from-[var(--sidebar)] to-[var(--sidebar-accent)] shadow-xl border-r border-[var(--sidebar-border)] rounded-r-2xl overflow-hidden">
                 {/* 상단 로고/앱명 */}
                 <SidebarHeader>
-                    <div className="flex items-center gap-2 px-4 py-4 bg-[var(--sidebar-primary)] rounded-br-2xl shadow-md">
-                        <Monitor className="w-7 h-7 text-[var(--sidebar-primary-foreground)] drop-shadow" />
-                        <span className="font-extrabold text-xl tracking-tight text-[var(--sidebar-primary-foreground)]">
-                            Visionix EMS
-                        </span>
+                    <div className="flex items-center justify-between px-4 py-4 bg-[var(--sidebar-primary)] rounded-br-2xl shadow-md">
+                        <div className="flex items-center gap-2">
+                            <Monitor className="w-7 h-7 text-[var(--sidebar-primary-foreground)] drop-shadow" />
+                            <span className="font-extrabold text-xl tracking-tight text-[var(--sidebar-primary-foreground)]">
+                                Visionix EMS
+                            </span>
+                        </div>
+                        {/* 토글 버튼 - 데스크톱에서만 표시 */}
+                        <button
+                            type="button"
+                            aria-label="사이드바 닫기"
+                            onClick={() => sidebar.toggleSidebar()}
+                            className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--sidebar-primary-foreground)]/20 hover:bg-[var(--sidebar-primary-foreground)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--sidebar-primary-foreground)]/50 transition-colors"
+                        >
+                            <ChevronLeft className="w-5 h-5 text-[var(--sidebar-primary-foreground)]" />
+                        </button>
                     </div>
                 </SidebarHeader>
                 <SidebarContent className="overflow-hidden px-2">

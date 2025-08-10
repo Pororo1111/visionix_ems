@@ -37,18 +37,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
-          defaultTheme="system"
+          defaultTheme="dark"
           storageKey="visionix-ui-theme"
         >
           <SidebarProvider>
-            <div className="flex flex-col md:flex-row min-h-screen w-full">
+            <div className="flex flex-row min-h-screen w-full">
               {/* 모바일 네브바 */}
               <Navbar />
-              {/* PC 사이드바 */}
-              <div className="hidden md:flex">
-                <AppSidebar />
-              </div>
-              <main className="flex-1 bg-background min-h-screen h-full w-full overflow-x-hidden">
+              {/* 사이드바 - 데스크톱과 모바일 모두 지원 */}
+              <AppSidebar />
+              <main className="flex-1 bg-background min-h-screen h-full w-full overflow-x-hidden pt-14 md:pt-0">
                 {children}
               </main>
             </div>

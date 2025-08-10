@@ -58,7 +58,7 @@ export default async function Home() {
   const initialTime = new Date().toISOString();
 
   return (
-    <div className="w-full h-full flex-1 p-6">
+    <div className="w-full min-h-screen flex-1 p-6">
       <DashboardClient initialData={initialData} initialTime={initialTime} />
     </div>
   );

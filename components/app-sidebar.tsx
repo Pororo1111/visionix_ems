@@ -18,6 +18,7 @@ import { Home, Monitor, Settings, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function AppSidebar() {
     const sidebar = useSidebar();
@@ -91,11 +92,16 @@ export default function AppSidebar() {
                 </SidebarContent>
                 {/* 하단 유저/설정 */}
                 <SidebarFooter>
-                    <div className="bg-[var(--sidebar-accent)] rounded-t-xl px-4 py-3 shadow-inner flex items-center gap-2">
-                        <Settings className="w-4 h-4 mr-2 text-[var(--sidebar-accent-foreground)]" />
-                        <span className="text-[var(--sidebar-accent-foreground)] font-medium">
-                            설정
-                        </span>
+                    <div className="bg-[var(--sidebar-accent)] rounded-t-xl px-4 py-3 shadow-inner">
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                                <Settings className="w-4 h-4 text-[var(--sidebar-accent-foreground)]" />
+                                <span className="text-[var(--sidebar-accent-foreground)] font-medium">
+                                    설정
+                                </span>
+                            </div>
+                            <ThemeToggle />
+                        </div>
                     </div>
                 </SidebarFooter>
             </Sidebar>

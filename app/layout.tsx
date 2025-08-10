@@ -9,6 +9,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import Navbar from '@/components/ui/navbar';
 import AppSidebar from '@/components/app-sidebar';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,20 +36,25 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SidebarProvider>
-          <div className="flex flex-col md:flex-row min-h-screen w-full">
-            {/* 모바일 네브바 */}
-            <Navbar />
-            {/* PC 사이드바 */}
-            <div className="hidden md:flex">
-              <AppSidebar />
+        <ThemeProvider
+          defaultTheme="system"
+          storageKey="visionix-ui-theme"
+        >
+          <SidebarProvider>
+            <div className="flex flex-col md:flex-row min-h-screen w-full">
+              {/* 모바일 네브바 */}
+              <Navbar />
+              {/* PC 사이드바 */}
+              <div className="hidden md:flex">
+                <AppSidebar />
+              </div>
+              <main className="flex-1 bg-background min-h-screen h-full w-full overflow-x-hidden">
+                {children}
+              </main>
             </div>
-            <main className="flex-1 bg-background min-h-screen h-full w-full overflow-x-hidden">
-              {children}
-            </main>
-          </div>
-        </SidebarProvider>
-        <Toaster />
+          </SidebarProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -77,36 +77,35 @@ export function DashboardClient({
     }, []);
 
     return (
-        <div className="h-full flex flex-col lg:flex-row gap-6">
+        <div className="h-screen w-full flex flex-col lg:flex-row overflow-hidden">
             {/* 왼쪽: 3D 뷰 */}
-            <div className="flex-1 lg:flex-[2]">
-                <ThreeDView />
+            <div className="flex-1 lg:flex-[2] h-full overflow-hidden">
+                <div className="h-full w-full">
+                    <ThreeDView />
+                </div>
             </div>
 
             {/* 오른쪽: 실시간 상태 + 요약 패널 */}
-            <div className="lg:w-80 xl:w-96 space-y-4">
-                <div className="sticky top-6 space-y-4">
-                    {/* 실시간 모니터링 상태 */}
-                    <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                        <div className="flex items-center justify-between space-x-2">
-                            <div className="flex items-center space-x-2">
-                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span className="text-sm text-green-700 dark:text-green-400 font-medium">
-                                    실시간 모니터링
-                                </span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                                <span className="text-xs text-gray-600 dark:text-gray-400">
-                                    업데이트:
-                                </span>
-                                <span className="text-xs font-bold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
-                                    {countdown}초
-                                </span>
-                            </div>
+            <div className="w-full lg:w-80 xl:w-96 h-full flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700">
+                {/* 실시간 모니터링 상태 */}
+                <div className="shrink-0 bg-green-50 dark:bg-green-950 border-b border-green-200 dark:border-green-800 p-2">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-green-700 dark:text-green-400 font-medium">
+                                실시간 모니터링
+                            </span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                            <span className="text-xs font-bold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
+                                {countdown}초
+                            </span>
                         </div>
                     </div>
+                </div>
 
-                    {/* 요약 패널 */}
+                {/* 요약 패널 */}
+                <div className="flex-1 min-h-0 overflow-hidden">
                     <SummaryPanel data={data} lastUpdate={lastUpdate} />
                 </div>
             </div>

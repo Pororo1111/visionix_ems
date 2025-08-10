@@ -159,17 +159,6 @@ export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
                         </CardContent>
                     </Card>
 
-                    <Separator />
-
-                    {/* 상태 표시 */}
-                    <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                        <div className="flex items-center justify-center space-x-2">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            <span className="text-sm text-green-700 dark:text-green-400 font-medium">
-                                실시간 모니터링 중
-                            </span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

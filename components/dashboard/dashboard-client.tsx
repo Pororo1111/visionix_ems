@@ -83,17 +83,15 @@ export function DashboardClient({
                 <ThreeDView />
             </div>
 
-            {/* 오른쪽: 요약 패널 */}
-            <div className="lg:w-80 xl:w-96">
-                <div className="sticky top-6">
-                    <SummaryPanel data={data} lastUpdate={lastUpdate} />
-
-                    {/* 상태 표시 */}
-                    <div className="mt-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                        <div className="flex items-center justify-center lg:justify-between space-x-2">
+            {/* 오른쪽: 실시간 상태 + 요약 패널 */}
+            <div className="lg:w-80 xl:w-96 space-y-4">
+                <div className="sticky top-6 space-y-4">
+                    {/* 실시간 모니터링 상태 */}
+                    <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                        <div className="flex items-center justify-between space-x-2">
                             <div className="flex items-center space-x-2">
                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span className="text-xs lg:text-sm text-green-700 dark:text-green-400">
+                                <span className="text-sm text-green-700 dark:text-green-400 font-medium">
                                     실시간 모니터링
                                 </span>
                             </div>
@@ -101,12 +99,15 @@ export function DashboardClient({
                                 <span className="text-xs text-gray-600 dark:text-gray-400">
                                     업데이트:
                                 </span>
-                                <span className="text-xs font-bold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900 px-1 py-0.5 rounded">
+                                <span className="text-xs font-bold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
                                     {countdown}초
                                 </span>
                             </div>
                         </div>
                     </div>
+
+                    {/* 요약 패널 */}
+                    <SummaryPanel data={data} lastUpdate={lastUpdate} />
                 </div>
             </div>
         </div>

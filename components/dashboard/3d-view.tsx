@@ -50,7 +50,7 @@ export function ThreeDView() {
                     
                     <OrbitControls
                         enablePan={true}
-                        enableZoom={true}
+                        enableZoom={false}
                         enableRotate={true}
                         minDistance={3}
                         maxDistance={15}

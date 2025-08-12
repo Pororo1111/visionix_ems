@@ -48,6 +48,15 @@ docker-compose -f docker-compose.prod.yml up -d       # Production deployment
 ./stop-production.sh     # Stop production environment
 ```
 
+## Testing Guidelines
+
+**⚠️ Development Server Testing Policy:**
+- DO NOT run `pnpm dev` or start development server for testing purposes
+- Code changes should be verified through code review and static analysis only
+- Use `pnpm lint` for code quality validation
+- Trust that the code modifications will work as intended without runtime testing
+- Focus on logical correctness rather than runtime verification
+
 ## Architecture Overview
 
 ### Domain-Driven Structure

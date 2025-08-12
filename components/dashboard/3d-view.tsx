@@ -470,11 +470,23 @@ export function ThreeDView({ healthData }: ThreeDViewProps) {
 
     // 헬스체크 데이터에서 디바이스별 상태 추출
     const deviceHealthMap = new Map<string, boolean>();
+    const ipHealthMap = new Map<string, boolean>(); // IP만으로도 매칭할 수 있도록
+    
+    console.log('🏥 HealthData 원본:', healthData.data);
+    
     healthData.data.forEach((item: { metric?: { instance?: string }; value?: [number, string] }) => {
       if (item.metric?.instance && item.value) {
         const instance = item.metric.instance;
         const isHealthy = parseFloat(item.value[1]) > 0;
+        
+        // 전체 instance로 매핑
         deviceHealthMap.set(instance, isHealthy);
+        
+        // IP만 추출해서도 매핑 (포트 제거)
+        const ipOnly = instance.split(':')[0];
+        ipHealthMap.set(ipOnly, isHealthy);
+        
+        console.log(`📊 헬스체크 매핑: ${instance} (${ipOnly}) → ${isHealthy ? '활성' : '비활성'}`);
       }
     });
 
@@ -484,15 +496,35 @@ export function ThreeDView({ healthData }: ThreeDViewProps) {
       
       const updatedDevices = prevDevices.map(device => {
         let status: DeviceStatus = device.status;
-        if (deviceHealthMap.has(device.name) || deviceHealthMap.has(device.ip || '')) {
-          const isHealthy = deviceHealthMap.get(device.name) || deviceHealthMap.get(device.ip || '');
+        let isHealthy: boolean | undefined;
+        
+        // 매칭 시도 순서: 1) 전체 instance, 2) device.name, 3) device.ip (포트 포함), 4) IP만
+        if (deviceHealthMap.has(device.name)) {
+          isHealthy = deviceHealthMap.get(device.name);
+        } else if (device.ip && deviceHealthMap.has(device.ip)) {
+          isHealthy = deviceHealthMap.get(device.ip);
+        } else if (device.ip && ipHealthMap.has(device.ip.split(':')[0])) {
+          // IP만으로 매칭 (포트 제거)
+          isHealthy = ipHealthMap.get(device.ip.split(':')[0]);
+        } else if (device.ip && ipHealthMap.has(device.ip)) {
+          // IP 그대로 매칭
+          isHealthy = ipHealthMap.get(device.ip);
+        }
+        
+        if (isHealthy !== undefined) {
           status = isHealthy ? 'active' : 'inactive';
         }
+        
+        console.log(`🔍 디바이스 매칭: ${device.name} (IP: ${device.ip}) → 상태: ${status} (헬스체크: ${isHealthy})`);
+        
         return { ...device, status };
       });
 
       // 비활성 디바이스 수 계산 및 증가 감지
       const currentInactiveCount = updatedDevices.filter(d => d.status === 'inactive').length;
+      const currentActiveCount = updatedDevices.filter(d => d.status === 'active').length;
+      
+      console.log(`📊 3D뷰 디바이스 수 업데이트: 전체 ${updatedDevices.length}개 | 활성 ${currentActiveCount}개 | 비활성 ${currentInactiveCount}개`);
       
       // 초기화가 완료된 후에만 알림 체크 (loading이 false이고 prevInactiveCount가 설정된 후)
       if (!loading && prevInactiveCount > 0 && currentInactiveCount > prevInactiveCount) {
@@ -550,8 +582,8 @@ export function ThreeDView({ healthData }: ThreeDViewProps) {
   // 서버 사이드에서는 로딩 표시
   if (!isClient || loading) {
     return (
-      <Card className="w-full">
-        <CardHeader>
+      <Card className="w-full h-full flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle className="flex items-center gap-2">
             🏢 인천공항 3D 뷰
           </CardTitle>
@@ -559,8 +591,8 @@ export function ThreeDView({ healthData }: ThreeDViewProps) {
             {!isClient ? '3D 뷰를 로딩 중입니다...' : '데이터베이스에서 디바이스 정보를 가져오는 중...'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="w-full h-96 bg-gray-100 rounded-lg border flex items-center justify-center">
+        <CardContent className="flex-1 min-h-0">
+          <div className="w-full h-full min-h-80 bg-gray-100 rounded-lg border flex items-center justify-center">
             <div className="text-gray-500">
               {!isClient ? '3D 뷰 준비 중... 🔄' : '디바이스 데이터 로딩 중... 📊'}
             </div>
@@ -579,8 +611,8 @@ export function ThreeDView({ healthData }: ThreeDViewProps) {
       />
       
       {/* 헤더 */}
-      <div className="shrink-0 p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="shrink-0 p-2 lg:p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 lg:gap-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               🏢 인천공항 3D 뷰

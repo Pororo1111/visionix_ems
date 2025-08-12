@@ -10,9 +10,9 @@ async function getInitialDashboardData(): Promise<PrometheusPanelData[]> {
   const queries = [
     // 기본 통계 패널들
     { id: 'total-devices', expr: 'count(app_status)', title: '전체 디바이스 수' },
-    { id: 'normal-devices', expr: 'sum(app_status)', title: 'AI 검사 정상 디바이스 수' },
-    { id: 'abnormal-devices', expr: 'count(app_status) - sum(app_status)', title: 'AI 검사 비정상 디바이스 수' },
-    { id: 'normal-rate', expr: '(sum(app_status) / count(app_status)) * 100', title: '정상률' },
+    { id: 'normal-devices', expr: 'count(app_status == 1)', title: 'AI 검사 정상 디바이스 수' },
+    { id: 'abnormal-devices', expr: 'count(app_status == 0)', title: 'AI 검사 비정상 디바이스 수' },
+    { id: 'normal-rate', expr: '(count(app_status == 1) / count(app_status)) * 100', title: '정상률' },
     
     // 시스템 리소스 패널들
     { id: 'avg-cpu', expr: 'avg(system_cpu_percent)', title: '평균 CPU 사용률' },
@@ -21,7 +21,7 @@ async function getInitialDashboardData(): Promise<PrometheusPanelData[]> {
     { id: 'cpu-over-85', expr: 'count(system_cpu_percent > 85)', title: 'CPU 85% 초과 디바이스 수' },
     
     // 트렌드 차트
-    { id: 'normal-rate-trend', expr: '(sum(app_status) / count(app_status)) * 100', title: 'AI 검사 정상 비율 트렌드' },
+    { id: 'normal-rate-trend', expr: '(count(app_status == 1) / count(app_status)) * 100', title: 'AI 검사 정상 비율 트렌드' },
     { id: 'cpu-trend', expr: 'avg(system_cpu_percent)', title: '평균 CPU 사용률 트렌드' },
     
     // 디바이스 테이블들

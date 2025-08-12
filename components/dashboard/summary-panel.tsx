@@ -3,6 +3,14 @@
 import { PrometheusPanelData } from "@/lib/prometheus-api";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface SummaryPanelProps {
     data: PrometheusPanelData[];
@@ -17,12 +25,64 @@ export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
     const avgCpu = data.find(d => d.id === "avg-cpu");
     const avgMemory = data.find(d => d.id === "avg-memory");
     const cpuOver85 = data.find(d => d.id === "cpu-over-85");
+    
+    // OCR 관련 데이터 추출
+    const ocrTimeData = data.find(d => d.id === "ocr-time");
+    const ocrServerTimestampData = data.find(d => d.id === "ocr-server-timestamp");
+    
+    // OCR 상태 계산 헬퍼 함수들
+    const getMatchStatusText = (isMatch: boolean) => {
+        return isMatch ? "🟢 일치" : "🔴 불일치";
+    };
+    
+    const getMatchStatusColor = (isMatch: boolean) => {
+        return isMatch ? "text-green-600" : "text-red-600";
+    };
 
     const getValue = (panel?: PrometheusPanelData) => {
         if (!panel?.data || panel.data.length === 0) return "0";
         const lastValue = panel.data[panel.data.length - 1];
+        
+        console.log(`🔍 getValue 디버그 - ${panel.id}:`, {
+            panel: panel.id,
+            dataLength: panel.data.length,
+            lastValue: lastValue,
+            hasValue: lastValue && "value" in lastValue
+        });
+        
         if (lastValue && typeof lastValue === "object" && "value" in lastValue) {
-            return parseFloat(lastValue.value as string).toFixed(1);
+            // Prometheus 응답 구조: value는 [timestamp, "실제값"] 배열
+            const prometheusValue = (lastValue as any).value;
+            let actualValue: string;
+            
+            if (Array.isArray(prometheusValue) && prometheusValue.length >= 2) {
+                // value[1]이 실제 값
+                actualValue = prometheusValue[1];
+            } else {
+                // 배열이 아닌 경우 그대로 사용
+                actualValue = prometheusValue;
+            }
+            
+            console.log(`📊 ${panel.id} 파싱 결과:`, {
+                prometheusValue,
+                actualValue,
+                parsed: parseFloat(actualValue)
+            });
+            
+            const numValue = parseFloat(actualValue);
+            
+            // 매우 큰 값인 경우 정수로 반올림하여 표시 (디바이스 개수는 정수여야 함)
+            if (panel.id === "normal-devices" || panel.id === "abnormal-devices" || panel.id === "total-devices") {
+                return Math.round(numValue).toString();
+            }
+            
+            // 백분율의 경우 소수점 1자리까지 표시
+            if (panel.id === "normal-rate" || panel.id?.includes("percent") || panel.id?.includes("rate")) {
+                return numValue.toFixed(1);
+            }
+            
+            // 기타 값들도 적절히 반올림
+            return numValue.toFixed(1);
         }
         return "0";
     };
@@ -87,6 +147,61 @@ export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
                             </CardContent>
                         </Card>
 
+                        {/* OCR 검사 결과 */}
+                        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-600">
+                            <CardHeader className="py-2 px-3">
+                                <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    ⏱️ OCR 검사 결과
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="px-3 pb-3 pt-0">
+                                {!ocrTimeData?.data || ocrTimeData.data.length === 0 ? (
+                                    <div className="text-center py-4 text-gray-500">
+                                        <div className="text-xs">데이터가 없습니다</div>
+                                    </div>
+                                ) : (
+                                    <div className="max-h-32 overflow-y-auto">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow className="text-xs">
+                                                    <TableHead className="text-xs py-1 px-2">IP</TableHead>
+                                                    <TableHead className="text-xs py-1 px-2 text-center">OCR</TableHead>
+                                                    <TableHead className="text-xs py-1 px-2 text-center">수집</TableHead>
+                                                    <TableHead className="text-xs py-1 px-2 text-center">일치</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {ocrTimeData.data.map((item, index) => {
+                                                    const ocrTimeValue = item.value[1];
+                                                    const serverTimestamp = ocrServerTimestampData?.data.find(d => d.metric.instance === item.metric.instance)?.value[1];
+                                                    
+                                                    const ocrTime = new Date(parseFloat(ocrTimeValue) * 1000);
+                                                    const serverTime = serverTimestamp ? new Date(parseFloat(serverTimestamp) * 1000) : null;
+                                                    
+                                                    const isMatch = serverTime ? 
+                                                        ocrTime.getHours() === serverTime.getHours() &&
+                                                        ocrTime.getMinutes() === serverTime.getMinutes() &&
+                                                        ocrTime.getSeconds() === serverTime.getSeconds()
+                                                        : false;
+
+                                                    const deviceIp = item.metric.instance;
+
+                                                    return (
+                                                        <TableRow key={index}>
+                                                            <TableCell className="text-xs py-1 px-2">{deviceIp.split(':')[0]}</TableCell>
+                                                            <TableCell className="text-xs py-1 px-2 text-center">{ocrTime.toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}</TableCell>
+                                                            <TableCell className="text-xs py-1 px-2 text-center">{serverTime ? serverTime.toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'}) : 'N/A'}</TableCell>
+                                                            <TableCell className={`text-xs py-1 px-2 text-center ${getMatchStatusColor(isMatch)}`}>{getMatchStatusText(isMatch)}</TableCell>
+                                                        </TableRow>
+                                                    );
+                                                })}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                )}
+                                <div className="text-xs text-gray-400 mt-2 text-center">실시간 업데이트</div>
+                            </CardContent>
+                        </Card>
 
                     </div>
                 </div>

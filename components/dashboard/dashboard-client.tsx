@@ -17,6 +17,19 @@ export function DashboardClient({
     const [data, setData] = useState<PrometheusPanelData[]>(initialData);
     const [lastUpdate, setLastUpdate] = useState<Date>(new Date(initialTime));
     const [countdown, setCountdown] = useState<number>(5);
+    const [isMobile, setIsMobile] = useState<boolean>(false);
+
+    // 모바일 화면 감지
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 1024);
+        };
+        
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         const interval = setInterval(async () => {
@@ -72,15 +85,27 @@ export function DashboardClient({
 
     return (
         <div className="h-screen w-full flex flex-col lg:flex-row overflow-hidden">
-            {/* 왼쪽: 3D 뷰 */}
-            <div className="flex-1 lg:flex-[2] h-full overflow-hidden">
+            {/* 3D 뷰 - 모바일에서 확실한 표시 보장 */}
+            <div 
+                className="w-full lg:flex-[2] overflow-hidden bg-white border-b lg:border-b-0 lg:border-r border-gray-200" 
+                style={{
+                    height: isMobile ? '50vh' : '100vh',
+                    minHeight: isMobile ? '400px' : 'auto',
+                    display: 'block'
+                }}
+            >
                 <div className="h-full w-full">
                     <ThreeDView healthData={data.find(d => d.id === "device-health")} />
                 </div>
             </div>
 
-            {/* 오른쪽: 실시간 상태 + 요약 패널 */}
-            <div className="w-full lg:w-80 xl:w-96 h-full flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700">
+            {/* 실시간 상태 + 요약 패널 */}
+            <div 
+                className="w-full lg:w-80 xl:w-96 flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900"
+                style={{
+                    height: isMobile ? 'calc(50vh - 1px)' : '100vh'
+                }}
+            >
                 {/* 실시간 모니터링 상태 */}
                 <div className="shrink-0 bg-green-50 dark:bg-green-950 border-b border-green-200 dark:border-green-800 p-2">
                     <div className="flex items-center justify-between">

@@ -25,17 +25,17 @@ export async function POST(request: NextRequest) {
             },
             {
                 id: "normal-devices",
-                expr: "sum(app_status)",
+                expr: "count(app_status == 1)",
                 title: "AI 검사 정상 디바이스 수",
             },
             {
                 id: "abnormal-devices",
-                expr: "count(app_status) - sum(app_status)",
+                expr: "count(app_status == 0)",
                 title: "AI 검사 비정상 디바이스 수",
             },
             {
                 id: "normal-rate",
-                expr: "(sum(app_status) / count(app_status)) * 100",
+                expr: "(count(app_status == 1) / count(app_status)) * 100",
                 title: "정상률",
             },
 
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
             // 트렌드 차트
             {
                 id: "normal-rate-trend",
-                expr: "(sum(app_status) / count(app_status)) * 100",
+                expr: "(count(app_status == 1) / count(app_status)) * 100",
                 title: "AI 검사 정상 비율 트렌드",
             },
             {
@@ -117,6 +117,13 @@ export async function POST(request: NextRequest) {
             start,
             end
         );
+
+        // 디버깅: AI검사 및 OCR 관련 패널 로깅
+        const debugPanels = results.filter(r => 
+            r.id === 'normal-devices' || r.id === 'abnormal-devices' || r.id === 'normal-rate' ||
+            r.id === 'ocr-time' || r.id === 'ocr-server-timestamp'
+        );
+        console.log('🔍 AI검사 현황 및 OCR 패널 디버그:', JSON.stringify(debugPanels, null, 2));
 
         return NextResponse.json({ data: results });
     } catch (error) {

@@ -102,37 +102,39 @@ export function OcrPanel({
   const showLoadingOrNoData = loading || !ocrTimePanel || !ocrTimePanel.data || ocrTimePanel.data.length === 0;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-gray-600">
-          <span className="mr-2">⏱️</span>
-          {ocrTimePanel?.title || "OCR 시간"}
-        </CardTitle>
-        <Input
-          placeholder="IP 검색..."
-          value={displayedSearchTerm}
-          onChange={handleInputChange}
-          className="mt-2 max-w-sm"
-        />
+    <Card className="h-full flex flex-col">
+      <CardHeader className="shrink-0 pb-2">
+        <div className="flex flex-col gap-2">
+          <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="mr-2">⏱️</span>
+            OCR 검사 결과
+          </CardTitle>
+          <Input
+            placeholder="IP 검색..."
+            value={displayedSearchTerm}
+            onChange={handleInputChange}
+            className="text-xs h-8"
+          />
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 min-h-0 overflow-hidden">
         {showLoadingOrNoData ? (
           loading && searchTerm ? (
             renderLoadingSkeleton()
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <div className="text-sm">{loading ? "Loading..." : "데이터가 없습니다"}</div>
+            <div className="text-center py-4 text-gray-500">
+              <div className="text-xs">{loading ? "Loading..." : "데이터가 없습니다"}</div>
             </div>
           )
         ) : (
-          <div className="max-h-64 overflow-y-auto">
+          <div className="h-full overflow-y-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="text-xs">Device IP</TableHead>
-                  <TableHead className="text-xs text-center">OCR 시간</TableHead>
-                  <TableHead className="text-xs text-center">수집 시간</TableHead>
-                  <TableHead className="text-xs text-center">일치 여부</TableHead>
+                <TableRow className="text-xs">
+                  <TableHead className="text-xs py-2">IP</TableHead>
+                  <TableHead className="text-xs text-center py-2">OCR</TableHead>
+                  <TableHead className="text-xs text-center py-2">수집</TableHead>
+                  <TableHead className="text-xs text-center py-2">일치</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -153,10 +155,10 @@ export function OcrPanel({
 
                   return (
                     <TableRow key={index}>
-                      <TableCell className="text-xs font-medium">{deviceIp}</TableCell>
-                      <TableCell className="text-xs font-medium text-center">{ocrTime.toLocaleTimeString()}</TableCell>
-                      <TableCell className="text-xs font-medium text-center">{serverTime ? serverTime.toLocaleTimeString() : 'N/A'}</TableCell>
-                      <TableCell className={`text-xs font-medium text-center ${getMatchStatusColor(isMatch)}`}>{getMatchStatusText(isMatch)}</TableCell>
+                      <TableCell className="text-xs py-1 px-2">{deviceIp.split(':')[0]}</TableCell>
+                      <TableCell className="text-xs py-1 px-2 text-center">{ocrTime.toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'})}</TableCell>
+                      <TableCell className="text-xs py-1 px-2 text-center">{serverTime ? serverTime.toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'}) : 'N/A'}</TableCell>
+                      <TableCell className={`text-xs py-1 px-2 text-center ${getMatchStatusColor(isMatch)}`}>{getMatchStatusText(isMatch)}</TableCell>
                     </TableRow>
                   );
                 })}

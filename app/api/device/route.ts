@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
     listDevices,
+    getAllDevices,
     registerDevice,
     removeDevice,
     updateDevice,
@@ -9,15 +10,15 @@ import {
 export async function PUT(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
-        const deviceId = searchParams.get("deviceId");
-        if (!deviceId) {
+        const deviceName = searchParams.get("deviceName");
+        if (!deviceName) {
             return NextResponse.json(
-                { error: "디바이스 ID가 필요합니다." },
+                { error: "디바이스 이름이 필요합니다." },
                 { status: 400 }
             );
         }
         const data = await req.json();
-        const updated = await updateDevice(deviceId, data);
+        const updated = await updateDevice(deviceName, data);
         if (updated) {
             return NextResponse.json({
                 success: true,
@@ -39,13 +40,22 @@ export async function PUT(req: NextRequest) {
 }
 import type { DeviceCreateRequest } from "@/domain/device/dto/device.dto";
 
-// 디바이스 목록 조회 (페이징)
+// 디바이스 목록 조회 (페이징 또는 전체)
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "10", 10);
-    const result = await listDevices(page, limit);
-    return NextResponse.json(result);
+    const all = searchParams.get("all");
+    
+    if (all === "true") {
+        // 전체 디바이스 조회 (3D 뷰용)
+        const devices = await getAllDevices();
+        return NextResponse.json({ items: devices, total: devices.length });
+    } else {
+        // 페이징된 디바이스 조회 (기존 방식)
+        const page = parseInt(searchParams.get("page") || "1", 10);
+        const limit = parseInt(searchParams.get("limit") || "10", 10);
+        const result = await listDevices(page, limit);
+        return NextResponse.json(result);
+    }
 }
 
 // 디바이스 생성
@@ -59,16 +69,16 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
-        const deviceId = searchParams.get("deviceId");
+        const deviceName = searchParams.get("deviceName");
 
-        if (!deviceId) {
+        if (!deviceName) {
             return NextResponse.json(
-                { error: "디바이스 ID가 필요합니다." },
+                { error: "디바이스 이름이 필요합니다." },
                 { status: 400 }
             );
         }
 
-        const success = await removeDevice(deviceId);
+        const success = await removeDevice(deviceName);
 
         if (success) {
             return NextResponse.json({

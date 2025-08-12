@@ -67,8 +67,8 @@ export function OcrPanel({
         const result = await response.json();
         setOcrTimePanel(result.ocrTimePanel);
         setOcrServerTimestampPanel(result.ocrServerTimestampPanel);
-      } catch (e: any) {
-        setError(e.message);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Unknown error');
       } finally {
         setLoading(false);
       }

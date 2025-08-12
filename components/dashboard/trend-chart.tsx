@@ -5,13 +5,9 @@ import { PrometheusPanelData } from "@/lib/prometheus-api";
 import {
     ChartContainer,
     ChartResponsiveContainer,
-    ChartTooltip,
-    ChartTooltipContent,
     ChartStyle,
 } from "@/components/ui/chart";
 import {
-    Line,
-    LineChart,
     Area,
     AreaChart,
     XAxis,
@@ -233,7 +229,7 @@ export function TrendChart({ panel, className }: TrendChartProps) {
                                     />
                                     <Tooltip
                                         cursor={{ strokeDasharray: "3 3" }}
-                                        formatter={(value: any, name: any) => [
+                                        formatter={(value: number | string, name: string) => [
                                             `${value}${getUnit(panel)}`,
                                             name,
                                         ]}

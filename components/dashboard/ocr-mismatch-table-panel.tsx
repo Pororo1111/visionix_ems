@@ -23,7 +23,7 @@ export function OcrMismatchTablePanel({
 }: OcrMismatchTablePanelProps) {
   const [ocrTimePanel, setOcrTimePanel] = useState<PrometheusPanelData | null>(initialOcrMismatchListPanel || null);
   const [ocrServerTimestampPanel, setOcrServerTimestampPanel] = useState<PrometheusPanelData | null>(initialOcrServerTimestampPanel || null);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, _setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Update state when initial props change (from dashboard-client's update cycle)
@@ -31,7 +31,7 @@ export function OcrMismatchTablePanel({
     setOcrServerTimestampPanel(initialOcrServerTimestampPanel || null);
   }, [initialOcrMismatchListPanel, initialOcrServerTimestampPanel]);
 
-  if (error) return <Card><CardContent>Error: {error}</CardContent></Card>;
+  if (_error) return <Card><CardContent>Error: {_error}</CardContent></Card>;
 
   // 디바이스 IP를 키로 사용하여 ocrServerTimestampPanel 데이터를 Map으로 변환
   const serverTimestampMap = new Map<string, string>();

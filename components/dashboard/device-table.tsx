@@ -20,7 +20,7 @@ export function DeviceTable({ panel, className }: DeviceTableProps) {
     const getTableData = (panel: PrometheusPanelData) => {
         if (panel.data.length === 0) return [];
 
-        return panel.data.map((result: any) => {
+        return panel.data.map((result: { metric?: { instance?: string }; value?: [number, string]; values?: [number, string][] }) => {
             const instance = result.metric?.instance || "Unknown";
 
             // value 처리 개선
@@ -29,8 +29,8 @@ export function DeviceTable({ panel, className }: DeviceTableProps) {
                 // instant query의 경우 [timestamp, value] 형태
                 if (Array.isArray(result.value) && result.value.length === 2) {
                     value = parseFloat(result.value[1]);
-                } else {
-                    value = parseFloat(result.value);
+                } else if (result.value) {
+                    value = parseFloat(String(result.value));
                 }
             }
 
@@ -77,13 +77,13 @@ export function DeviceTable({ panel, className }: DeviceTableProps) {
             case "ai-failed-devices":
                 return "❌";
             case "device-health":
-                return "🖥️";
+                return "💓";
             default:
                 return "📊";
         }
     };
 
-    const getUnit = (panel: PrometheusPanelData): string => {
+    const _getUnit = (panel: PrometheusPanelData): string => {
         switch (panel.id) {
             case "cpu-top-20":
             case "memory-top-20":

@@ -87,7 +87,7 @@ export function DashboardClient({
         <div className="h-screen w-full flex flex-col lg:flex-row overflow-hidden">
             {/* 3D 뷰 - 모바일에서 확실한 표시 보장 */}
             <div 
-                className="w-full lg:flex-[2] overflow-hidden bg-white border-b lg:border-b-0 lg:border-r border-gray-200" 
+                className="w-full lg:flex-[2] overflow-hidden" 
                 style={{
                     height: isMobile ? '50vh' : '100vh',
                     minHeight: isMobile ? '400px' : 'auto',

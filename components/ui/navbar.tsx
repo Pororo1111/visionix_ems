@@ -9,17 +9,17 @@ export default function Navbar() {
   return (
     <>
       {/* 모바일 네브바 - 고정 위치 */}
-      <nav className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between h-14 px-4 border-b bg-primary text-primary-foreground md:hidden">
+      <nav className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between h-14 px-4 border-b bg-background border-border shadow-sm md:hidden">
         <div className="flex items-center">
           <button
             type="button"
             aria-label="메뉴 열기"
             onClick={toggleSidebar}
-            className="mr-2 rounded-md p-2 hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-ring"
+            className="mr-2 rounded-md p-2 hover:bg-accent text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <Menu className="w-6 h-6" />
           </button>
-          <span className="font-bold text-lg">Visionix EMS</span>
+          <span className="font-bold text-lg text-foreground">Visionix EMS</span>
         </div>
         <ThemeToggle />
       </nav>

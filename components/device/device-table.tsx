@@ -17,12 +17,30 @@ import {
 import { Trash2, Pencil } from "lucide-react";
 import DeviceEditForm from "./device-edit-form";
 import { toast } from "sonner";
+import { 
+  BuildingType, 
+  DeviceType, 
+  DeviceStatus, 
+  getBuildingName,
+  getDeviceTypeLabel,
+  getDeviceStatusLabel,
+  getFloorDisplay
+} from '@/types/device';
 
 interface Device {
-    device_id: string;
-    ip: string;
-    location: string;
+    device_name: string;
+    ip?: string;
+    device_type: DeviceType;
+    status: DeviceStatus;
+    building_type: BuildingType;
+    floor: number;
+    position_x: number;
+    position_z: number;
+    location?: string;
+    description?: string;
+    is_registered_via_3d: boolean;
     created_at: string;
+    updated_at: string;
 }
 
 interface DeviceTableProps {
@@ -44,17 +62,17 @@ export default function DeviceTable({
     onDeviceDeleted,
     className,
 }: DeviceTableProps) {
-    const [deletingDeviceId, setDeletingDeviceId] = useState<string | null>(
+    const [, setDeletingDeviceName] = useState<string | null>(
         null
     );
     const [isDeleting, setIsDeleting] = useState(false);
     const [editingDevice, setEditingDevice] = useState<Device | null>(null);
     const totalPages = Math.ceil(total / limit);
 
-    const handleDelete = async (deviceId: string) => {
+    const handleDelete = async (deviceName: string) => {
         setIsDeleting(true);
         try {
-            const response = await fetch(`/api/device?deviceId=${deviceId}`, {
+            const response = await fetch(`/api/device?deviceName=${encodeURIComponent(deviceName)}`, {
                 method: "DELETE",
             });
 
@@ -71,7 +89,7 @@ export default function DeviceTable({
             toast.error("삭제 중 오류가 발생했습니다.");
         } finally {
             setIsDeleting(false);
-            setDeletingDeviceId(null);
+            setDeletingDeviceName(null);
         }
     };
 
@@ -82,13 +100,16 @@ export default function DeviceTable({
                     <thead className="bg-gray-50 dark:bg-gray-800">
                         <tr>
                             <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">
-                                Device ID
+                                디바이스명
                             </th>
                             <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">
-                                IP 주소
+                                타입
                             </th>
                             <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">
-                                설치 위치
+                                위치
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">
+                                IP
                             </th>
                             <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-200">
                                 생성일
@@ -102,7 +123,7 @@ export default function DeviceTable({
                         {devices.length === 0 ? (
                             <tr>
                                 <td
-                                    colSpan={5}
+                                    colSpan={6}
                                     className="text-center py-8 text-gray-400"
                                 >
                                     등록된 디바이스가 없습니다.
@@ -111,7 +132,7 @@ export default function DeviceTable({
                         ) : (
                             devices.map((d, idx) => (
                                 <tr
-                                    key={d.device_id}
+                                    key={d.device_name}
                                     className={
                                         "border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors" +
                                         (idx % 2 === 1
@@ -119,12 +140,24 @@ export default function DeviceTable({
                                             : "")
                                     }
                                 >
-                                    <td className="px-4 py-2 font-mono text-sm">
-                                        {d.device_id}
+                                    <td className="px-4 py-2 font-semibold text-sm">
+                                        {d.device_name}
                                     </td>
-                                    <td className="px-4 py-2">{d.ip}</td>
-                                    <td className="px-4 py-2">{d.location}</td>
-                                    <td className="px-4 py-2 whitespace-nowrap">
+                                    <td className="px-4 py-2">
+                                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                            d.device_type === 'sensor' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
+                                            d.device_type === 'camera' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                        }`}>
+                                            {getDeviceTypeLabel(d.device_type)}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-2 text-sm">
+                                        <div>{getBuildingName(d.building_type)}</div>
+                                        <div className="text-gray-500">{getFloorDisplay(d.floor)}</div>
+                                    </td>
+                                    <td className="px-4 py-2 text-sm font-mono">{d.ip || '-'}</td>
+                                    <td className="px-4 py-2 whitespace-nowrap text-sm">
                                         {d.created_at
                                             ? new Date(
                                                   d.created_at
@@ -136,8 +169,8 @@ export default function DeviceTable({
                                         <AlertDialog
                                             open={
                                                 !!editingDevice &&
-                                                editingDevice.device_id ===
-                                                    d.device_id
+                                                editingDevice.device_name ===
+                                                    d.device_name
                                             }
                                             onOpenChange={(open) => {
                                                 if (!open)
@@ -193,7 +226,7 @@ export default function DeviceTable({
                                                     </AlertDialogTitle>
                                                     <AlertDialogDescription>
                                                         <strong>
-                                                            {d.device_id}
+                                                            {d.device_name}
                                                         </strong>{" "}
                                                         디바이스를
                                                         삭제하시겠습니까?
@@ -208,7 +241,7 @@ export default function DeviceTable({
                                                     <AlertDialogAction
                                                         onClick={() =>
                                                             handleDelete(
-                                                                d.device_id
+                                                                d.device_name
                                                             )
                                                         }
                                                         className="bg-red-600 hover:bg-red-700"

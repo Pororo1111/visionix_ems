@@ -3,7 +3,6 @@
 import { PrometheusPanelData } from "@/lib/prometheus-api";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 interface SummaryPanelProps {
     data: PrometheusPanelData[];
@@ -12,11 +11,9 @@ interface SummaryPanelProps {
 
 export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
     // 중요한 메트릭들 추출
-    const totalDevices = data.find(d => d.id === "total-devices");
     const normalDevices = data.find(d => d.id === "normal-devices");
     const abnormalDevices = data.find(d => d.id === "abnormal-devices");
     const normalRate = data.find(d => d.id === "normal-rate");
-    const deviceHealth = data.find(d => d.id === "device-health");
     const avgCpu = data.find(d => d.id === "avg-cpu");
     const avgMemory = data.find(d => d.id === "avg-memory");
     const cpuOver85 = data.find(d => d.id === "cpu-over-85");
@@ -30,12 +27,6 @@ export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
         return "0";
     };
 
-    const getHealthyDevices = () => {
-        if (!deviceHealth?.data) return 0;
-        return deviceHealth.data.filter((item: any) => 
-            item.value && parseFloat(item.value) > 0
-        ).length;
-    };
 
     return (
         <div className="h-full flex flex-col overflow-hidden">
@@ -96,62 +87,7 @@ export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
                             </CardContent>
                         </Card>
 
-                        {/* 헬스체크 현황 */}
-                        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-600">
-                            <CardHeader className="py-2 px-3">
-                                <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    💓 헬스체크 현황
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="px-3 pb-3 pt-0">
-                                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded">
-                                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                                        온라인 디바이스
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                        <span className="font-bold text-green-600 text-sm">
-                                            {getHealthyDevices()} / {getValue(totalDevices)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
 
-                        {/* 시스템 리소스 요약 */}
-                        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-600">
-                            <CardHeader className="py-2 px-3">
-                                <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    ⚡ 시스템 리소스
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="px-3 pb-3 pt-0 space-y-2">
-                                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded">
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">평균 CPU</span>
-                                    <Badge variant={
-                                        parseFloat(getValue(avgCpu)) > 80 ? "destructive" : "default"
-                                    } className="text-xs">
-                                        {getValue(avgCpu)}%
-                                    </Badge>
-                                </div>
-                                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded">
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">평균 메모리</span>
-                                    <Badge variant={
-                                        parseFloat(getValue(avgMemory)) > 80 ? "destructive" : "default"
-                                    } className="text-xs">
-                                        {getValue(avgMemory)}%
-                                    </Badge>
-                                </div>
-                                <div className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded">
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">고부하 디바이스</span>
-                                    <Badge variant={
-                                        parseFloat(getValue(cpuOver85)) > 0 ? "destructive" : "default"
-                                    } className="text-xs">
-                                        {getValue(cpuOver85)}개
-                                    </Badge>
-                                </div>
-                            </CardContent>
-                        </Card>
                     </div>
                 </div>
             </div>

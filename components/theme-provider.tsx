@@ -28,14 +28,18 @@ export function ThemeProvider({
   storageKey = "visionix-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(
-    () => {
-      if (typeof window === 'undefined') return defaultTheme
-      return (localStorage.getItem(storageKey) as Theme) || defaultTheme
-    }
-  )
+  const [theme, setTheme] = React.useState<Theme>(defaultTheme)
+  const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
+    setMounted(true)
+    const storedTheme = (localStorage.getItem(storageKey) as Theme) || defaultTheme
+    setTheme(storedTheme)
+  }, [storageKey, defaultTheme])
+
+  React.useEffect(() => {
+    if (!mounted) return
+    
     const root = window.document.documentElement
 
     root.classList.remove("light", "dark")
@@ -51,15 +55,15 @@ export function ThemeProvider({
     }
 
     root.classList.add(theme)
-  }, [theme])
+  }, [theme, mounted])
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
+    setTheme: (newTheme: Theme) => {
       if (typeof window !== 'undefined') {
-        localStorage.setItem(storageKey, theme)
+        localStorage.setItem(storageKey, newTheme)
       }
-      setTheme(theme)
+      setTheme(newTheme)
     },
   }
 

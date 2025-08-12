@@ -318,9 +318,9 @@ const BuildingView = ({
     : devices.filter(d => d.floor === selectedFloor);
   
   return (
-    <div className="h-full w-full flex flex-col overflow-hidden relative" style={{ minHeight: '400px', position: 'relative', zIndex: 1 }}>
+    <div className="h-full w-full flex flex-col" style={{ minHeight: '400px' }}>
       {/* 건물 정보 */}
-      <div className="shrink-0 p-4 text-center bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 relative z-10">
+      <div className="shrink-0 p-4 text-center bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{building.name}</h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">{building.description}</p>
         
@@ -370,24 +370,19 @@ const BuildingView = ({
       </div>
       
       {/* 3D Canvas - 화면 전체 활용 */}
-      <div className="flex-1 min-h-0 bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-900 relative" style={{ zIndex: 1 }}>
+      <div className="flex-1 min-h-0 bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-900">
         <Canvas
           key={`canvas-${isDarkMode ? 'dark' : 'light'}`} // 테마 변경 시 Canvas 재생성
           camera={{ position: [-10, 8, 10], fov: 45 }}
           style={{ 
             width: '100%', 
             height: '100%',
+            minHeight: '200px',
             display: 'block',
             touchAction: isMobile ? 'none' : 'manipulation',
-            minHeight: '300px',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: 1,
             backgroundColor: isDarkMode ? '#1f2937' : '#f8fafc',
             pointerEvents: isMobile ? 'none' : 'auto'
           }}
-          className="absolute inset-0"
           gl={{
             preserveDrawingBuffer: true,
             alpha: false,
@@ -437,7 +432,7 @@ const BuildingView = ({
       </div>
       
       {/* 하단 통계 정보 */}
-      <div className="shrink-0 p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 relative z-10">
+      <div className="shrink-0 p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
             <div className="font-semibold text-green-600 dark:text-green-400 text-sm">활성 디바이스</div>
@@ -745,7 +740,7 @@ export function ThreeDView({ healthData }: ThreeDViewProps) {
       </div>
       
       {/* 메인 3D 뷰 */}
-      <div className="flex-1 min-h-0 overflow-hidden relative" style={{ minHeight: '400px' }}>
+      <div className="flex-1 min-h-0" style={{ minHeight: '400px' }}>
         <BuildingView 
           buildingType={selectedBuilding} 
           devices={devices}

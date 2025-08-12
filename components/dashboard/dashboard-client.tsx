@@ -84,41 +84,29 @@ export function DashboardClient({
     }, []);
 
     if (isMobile) {
-        // 모바일: 완전 수직 스택 레이아웃
+        // 모바일: 3D 뷰와 실시간 대시보드가 연속적으로 붙어서 표시
         return (
-            <div className="min-h-screen w-full flex flex-col">
-                {/* 3D 뷰 - 위쪽 */}
+            <div className="w-full">
+                {/* 1. 3D 뷰 - 고정 높이 */}
                 <div 
-                    className="w-full bg-white dark:bg-gray-800 flex-shrink-0"
+                    className="w-full bg-white dark:bg-gray-800"
                     style={{
-                        height: '60vh',
-                        minHeight: '350px',
-                        maxHeight: '60vh'
+                        height: '100vh',
+                        minHeight: '100vh'
                     }}
                 >
                     <ThreeDView healthData={data.find(d => d.id === "device-health")} />
                 </div>
 
-                {/* 요약 패널 - 아래쪽 */}
-                <div 
-                    className="w-full bg-gray-50 dark:bg-gray-900 flex-grow"
-                    style={{
-                        minHeight: '400px'
-                    }}
-                >
-                    <div className="h-full flex flex-col">
-                        {/* 요약 패널 */}
-                        <div className="flex-1">
-                            <SummaryPanel 
-                                data={data} 
-                                lastUpdate={lastUpdate} 
-                                countdown={countdown}
-                                isMobile={isMobile}
-                            />
-                        </div>
-                    </div>
+                {/* 2. 요약 패널 - 바로 아래 붙어서 표시 */}
+                <div className="w-full bg-gray-50 dark:bg-gray-900">
+                    <SummaryPanel 
+                        data={data} 
+                        lastUpdate={lastUpdate} 
+                        countdown={countdown}
+                        isMobile={isMobile}
+                    />
                 </div>
-
             </div>
         );
     }

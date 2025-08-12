@@ -299,12 +299,16 @@ const BuildingView = ({
   buildingType, 
   devices,
   selectedFloor,
-  onFloorSelect
+  onFloorSelect,
+  isDarkMode = false,
+  isMobile = false
 }: { 
   buildingType: BuildingType;
   devices: IoTDevice[];
   selectedFloor: number | null;
   onFloorSelect: (floor: number | null) => void;
+  isDarkMode?: boolean;
+  isMobile?: boolean;
 }) => {
   const building = BUILDING_INFO[buildingType];
   
@@ -314,9 +318,9 @@ const BuildingView = ({
     : devices.filter(d => d.floor === selectedFloor);
   
   return (
-    <div className="h-full w-full flex flex-col overflow-hidden">
+    <div className="h-full w-full flex flex-col overflow-hidden relative" style={{ minHeight: '400px', position: 'relative', zIndex: 1 }}>
       {/* 건물 정보 */}
-      <div className="shrink-0 p-4 text-center bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="shrink-0 p-4 text-center bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 relative z-10">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{building.name}</h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">{building.description}</p>
         
@@ -366,14 +370,49 @@ const BuildingView = ({
       </div>
       
       {/* 3D Canvas - 화면 전체 활용 */}
-      <div className="flex-1 min-h-0 bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-900">
+      <div className="flex-1 min-h-0 bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-900 relative" style={{ zIndex: 1 }}>
         <Canvas
+          key={`canvas-${isDarkMode ? 'dark' : 'light'}`} // 테마 변경 시 Canvas 재생성
           camera={{ position: [-10, 8, 10], fov: 45 }}
-          className="w-full h-full"
+          style={{ 
+            width: '100%', 
+            height: '100%',
+            display: 'block',
+            touchAction: isMobile ? 'none' : 'manipulation',
+            minHeight: '300px',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1,
+            backgroundColor: isDarkMode ? '#1f2937' : '#f8fafc',
+            pointerEvents: isMobile ? 'none' : 'auto'
+          }}
+          className="absolute inset-0"
+          gl={{
+            preserveDrawingBuffer: true,
+            alpha: false,
+            antialias: true,
+            powerPreference: 'default'
+          }}
+          onCreated={({ gl, scene }) => {
+            // WebGL 렌더러의 배경색 설정
+            gl.setClearColor(isDarkMode ? '#1f2937' : '#f8fafc');
+            
+            // 씬 배경색도 설정 (추가적 보장)
+            scene.background = new THREE.Color(isDarkMode ? '#1f2937' : '#f8fafc');
+          }}
         >
-          <ambientLight intensity={0.7} />
-          <directionalLight position={[15, 15, 5]} intensity={1.2} />
-          <pointLight position={[-10, -10, -5]} intensity={0.6} />
+          <ambientLight intensity={isDarkMode ? 0.4 : 0.7} />
+          <directionalLight 
+            position={[15, 15, 5]} 
+            intensity={isDarkMode ? 0.8 : 1.2} 
+            color={isDarkMode ? '#e5e7eb' : '#ffffff'}
+          />
+          <pointLight 
+            position={[-10, -10, -5]} 
+            intensity={isDarkMode ? 0.3 : 0.6}
+            color={isDarkMode ? '#9ca3af' : '#ffffff'}
+          />
           
           <Building3D 
             buildingType={buildingType} 
@@ -382,18 +421,23 @@ const BuildingView = ({
           />
           
           <OrbitControls
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
+            enablePan={!isMobile}
+            enableZoom={!isMobile}
+            enableRotate={!isMobile}
             minDistance={8}
             maxDistance={25}
             autoRotate={false}
+            enabled={!isMobile}
+            touches={isMobile ? {} : {
+              ONE: THREE.TOUCH.ROTATE,
+              TWO: THREE.TOUCH.DOLLY_PAN
+            }}
           />
         </Canvas>
       </div>
       
       {/* 하단 통계 정보 */}
-      <div className="shrink-0 p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div className="shrink-0 p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 relative z-10">
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
             <div className="font-semibold text-green-600 dark:text-green-400 text-sm">활성 디바이스</div>
@@ -424,6 +468,8 @@ export function ThreeDView({ healthData }: ThreeDViewProps) {
   const [isClient, setIsClient] = useState(false);
   const [loading, setLoading] = useState(true);
   const [prevBuilding, setPrevBuilding] = useState<BuildingType>(BUILDING_TYPES.TERMINAL1);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   // 알림 관련 상태
   const [notifications, setNotifications] = useState<Array<{
@@ -545,6 +591,46 @@ export function ThreeDView({ healthData }: ThreeDViewProps) {
     });
   }, [healthData, loading, prevInactiveCount, selectedBuilding, addNotification]);
 
+  // 다크모드 감지
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark') || 
+                     window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setIsDarkMode(isDark);
+    };
+
+    // 초기 체크
+    checkDarkMode();
+
+    // 테마 변경 감지 (MutationObserver로 html class 변경 감지)
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    // 시스템 다크모드 설정 변경 감지
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', checkDarkMode);
+
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener('change', checkDarkMode);
+    };
+  }, []);
+
+  // 모바일 화면 감지
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // 초기 로드
   useEffect(() => {
     setIsClient(true);
@@ -659,12 +745,14 @@ export function ThreeDView({ healthData }: ThreeDViewProps) {
       </div>
       
       {/* 메인 3D 뷰 */}
-      <div className="flex-1 min-h-0 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden relative" style={{ minHeight: '400px' }}>
         <BuildingView 
           buildingType={selectedBuilding} 
           devices={devices}
           selectedFloor={selectedFloor}
           onFloorSelect={setSelectedFloor}
+          isDarkMode={isDarkMode}
+          isMobile={isMobile}
         />
       </div>
     </div>

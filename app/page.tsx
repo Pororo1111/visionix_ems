@@ -58,7 +58,7 @@ export default async function Home() {
   const initialTime = new Date().toISOString();
 
   return (
-    <div className="w-full h-screen overflow-hidden">
+    <div className="w-full min-h-screen">
       <DashboardClient initialData={initialData} initialTime={initialTime} />
     </div>
   );

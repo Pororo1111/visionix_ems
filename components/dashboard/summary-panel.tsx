@@ -15,9 +15,11 @@ import {
 interface SummaryPanelProps {
     data: PrometheusPanelData[];
     lastUpdate?: Date;
+    countdown?: number;
+    isMobile?: boolean;
 }
 
-export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
+export function SummaryPanel({ data, lastUpdate, countdown, isMobile }: SummaryPanelProps) {
     // 중요한 메트릭들 추출
     const normalDevices = data.find(d => d.id === "normal-devices");
     const abnormalDevices = data.find(d => d.id === "abnormal-devices");
@@ -89,8 +91,8 @@ export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
 
 
     return (
-        <div className="h-full flex flex-col overflow-hidden">
-            <div className="flex-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+        <div className="h-full flex flex-col">
+            <div className="flex-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
                 <div className="shrink-0 p-3 border-b border-slate-200 dark:border-slate-700">
                     <div className="flex flex-col gap-2">
                         <div>
@@ -101,11 +103,25 @@ export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
                                 Visionix EMS 시스템 모니터링
                             </p>
                         </div>
-                        {lastUpdate && (
-                            <div className="text-right">
-                                <p className="text-xs text-gray-500 dark:text-gray-400">업데이트: {lastUpdate.toLocaleTimeString("ko-KR", { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
-                            </div>
-                        )}
+                        <div className="flex justify-between items-end">
+                            {lastUpdate && (
+                                <div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">업데이트: {lastUpdate.toLocaleTimeString("ko-KR", { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
+                                </div>
+                            )}
+                            {/* 모바일용 실시간 모니터링 상태 */}
+                            {isMobile && countdown !== undefined && (
+                                <div className="flex items-center space-x-2 bg-green-50 dark:bg-green-950 px-2 py-1 rounded">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span className="text-xs text-green-700 dark:text-green-400 font-medium">
+                                        실시간
+                                    </span>
+                                    <span className="text-xs font-bold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
+                                        {countdown}초
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
                 
@@ -160,7 +176,7 @@ export function SummaryPanel({ data, lastUpdate }: SummaryPanelProps) {
                                         <div className="text-xs">데이터가 없습니다</div>
                                     </div>
                                 ) : (
-                                    <div className="max-h-32 overflow-y-auto">
+                                    <div className="max-h-48 overflow-y-auto">
                                         <Table>
                                             <TableHeader>
                                                 <TableRow className="text-xs">

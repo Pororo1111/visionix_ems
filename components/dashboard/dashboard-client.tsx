@@ -83,49 +83,83 @@ export function DashboardClient({
         return () => clearInterval(countdownInterval);
     }, []);
 
-    return (
-        <div className="h-screen w-full flex flex-col lg:flex-row overflow-hidden">
-            {/* 3D 뷰 - 모바일에서 확실한 표시 보장 */}
-            <div 
-                className="w-full lg:flex-[2] overflow-hidden" 
-                style={{
-                    height: isMobile ? '50vh' : '100vh',
-                    minHeight: isMobile ? '400px' : 'auto',
-                    display: 'block'
-                }}
-            >
-                <div className="h-full w-full">
+    if (isMobile) {
+        // 모바일: 완전 수직 스택 레이아웃
+        return (
+            <div className="min-h-screen w-full flex flex-col">
+                {/* 3D 뷰 - 위쪽 */}
+                <div 
+                    className="w-full bg-white dark:bg-gray-800 flex-shrink-0"
+                    style={{
+                        height: '60vh',
+                        minHeight: '350px',
+                        maxHeight: '60vh'
+                    }}
+                >
                     <ThreeDView healthData={data.find(d => d.id === "device-health")} />
                 </div>
-            </div>
 
-            {/* 실시간 상태 + 요약 패널 */}
-            <div 
-                className="w-full lg:w-80 xl:w-96 flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900"
-                style={{
-                    height: isMobile ? 'calc(50vh - 1px)' : '100vh'
-                }}
-            >
-                {/* 실시간 모니터링 상태 */}
-                <div className="shrink-0 bg-green-50 dark:bg-green-950 border-b border-green-200 dark:border-green-800 p-2">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            <span className="text-xs text-green-700 dark:text-green-400 font-medium">
-                                실시간 모니터링
-                            </span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                            <span className="text-xs font-bold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
-                                {countdown}초
-                            </span>
+                {/* 요약 패널 - 아래쪽 */}
+                <div 
+                    className="w-full bg-gray-50 dark:bg-gray-900 flex-grow"
+                    style={{
+                        minHeight: '400px'
+                    }}
+                >
+                    <div className="h-full flex flex-col">
+                        {/* 요약 패널 */}
+                        <div className="flex-1">
+                            <SummaryPanel 
+                                data={data} 
+                                lastUpdate={lastUpdate} 
+                                countdown={countdown}
+                                isMobile={isMobile}
+                            />
                         </div>
                     </div>
                 </div>
 
-                {/* 요약 패널 */}
-                <div className="flex-1 min-h-0 overflow-hidden">
-                    <SummaryPanel data={data} lastUpdate={lastUpdate} />
+            </div>
+        );
+    }
+
+    // 데스크톱: 기존 좌우 분할 레이아웃
+    return (
+        <div className="h-screen w-full flex flex-row overflow-hidden">
+            {/* 3D 뷰 */}
+            <div className="flex-[2] bg-white dark:bg-gray-800 h-full">
+                <ThreeDView healthData={data.find(d => d.id === "device-health")} />
+            </div>
+
+            {/* 실시간 상태 + 요약 패널 */}
+            <div className="w-80 xl:w-96 bg-gray-50 dark:bg-gray-900 h-full">
+                <div className="h-full flex flex-col overflow-hidden">
+                    {/* 데스크톱에서만 실시간 모니터링 상태 표시 */}
+                    <div className="shrink-0 bg-green-50 dark:bg-green-950 border-b border-green-200 dark:border-green-800 p-2">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span className="text-xs text-green-700 dark:text-green-400 font-medium">
+                                    실시간 모니터링
+                                </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                                <span className="text-xs font-bold text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900 px-2 py-1 rounded">
+                                    {countdown}초
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 요약 패널 */}
+                    <div className="flex-1 min-h-0 overflow-hidden">
+                        <SummaryPanel 
+                            data={data} 
+                            lastUpdate={lastUpdate} 
+                            countdown={countdown}
+                            isMobile={isMobile}
+                        />
+                    </div>
                 </div>
             </div>
         </div>

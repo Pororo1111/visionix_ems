@@ -1,85 +1,105 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Box, Text, Sphere } from '@react-three/drei';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import * as THREE from 'three';
-
-type BuildingType = 'terminal1' | 'terminal1-transport' | 'terminal2' | 'terminal2-transport' | 'concourse';
-
-interface BuildingInfo {
-  name: string;
-  floors: number;
-  undergroundFloors: number;
-  abovegroundFloors: number;
-  color: string;
-  description: string;
-}
+import { BuildingType, DeviceType, DeviceStatus, BUILDING_INFO, BUILDING_TYPES } from '@/types/device';
+import { PrometheusPanelData } from '@/lib/prometheus-api';
+import { NotificationManager } from '@/components/ui/notification';
 
 interface IoTDevice {
   id: string;
   name: string;
   floor: number;
-  type: 'sensor' | 'camera' | 'monitor';
-  status: 'active' | 'inactive';
+  type: DeviceType;
+  status: DeviceStatus;
   x: number;
   z: number;
+  building_type: BuildingType;
+  ip?: string;
+  location?: string;
+  description?: string;
 }
-
-const BUILDINGS: Record<BuildingType, BuildingInfo> = {
-  terminal1: {
-    name: '1터미널',
-    floors: 5,
-    undergroundFloors: 1,
-    abovegroundFloors: 4,
-    color: '#3b82f6',
-    description: '지하 1층, 지상 4층 구조'
-  },
-  'terminal1-transport': {
-    name: '1터미널 교통센터',
-    floors: 7,
-    undergroundFloors: 3,
-    abovegroundFloors: 4,
-    color: '#10b981',
-    description: '지하 3층, 지상 4층 구조'
-  },
-  terminal2: {
-    name: '2터미널',
-    floors: 6,
-    undergroundFloors: 1,
-    abovegroundFloors: 5,
-    color: '#8b5cf6',
-    description: '지하 1층, 지상 5층 구조'
-  },
-  'terminal2-transport': {
-    name: '2터미널 교통센터',
-    floors: 7,
-    undergroundFloors: 3,
-    abovegroundFloors: 4,
-    color: '#06b6d4',
-    description: '지하 3층, 지상 4층 구조'
-  },
-  concourse: {
-    name: '탑승동',
-    floors: 6,
-    undergroundFloors: 1,
-    abovegroundFloors: 5,
-    color: '#f59e0b',
-    description: '지하 1층, 지상 5층 구조'
-  }
-};
 
 // 결정론적 랜덤 함수 (Seeded Random)
 const seededRandom = (seed: number) => {
-  let x = Math.sin(seed++) * 10000;
+  const x = Math.sin(seed++) * 10000;
   return x - Math.floor(x);
 };
 
-const generateIoTDevices = (buildingType: BuildingType): IoTDevice[] => {
-  const building = BUILDINGS[buildingType];
+// 데이터베이스에서 디바이스를 가져와서 3D 뷰용으로 변환하는 함수
+interface DbDevice {
+  device_name: string;
+  device_type: DeviceType;
+  building_type: BuildingType;
+  floor: number;
+  position_x: number;
+  position_z: number;
+  status?: DeviceStatus;
+  ip?: string;
+  location?: string;
+  description?: string;
+}
+
+const convertDbDevicesToIoTDevices = (dbDevices: DbDevice[], buildingType: BuildingType, healthData?: PrometheusPanelData): IoTDevice[] => {
+  // 헬스체크 데이터에서 디바이스별 상태 추출
+  const deviceHealthMap = new Map<string, boolean>();
+  if (healthData?.data) {
+    healthData.data.forEach((item: { metric?: { instance?: string }; value?: [number, string] }) => {
+      if (item.metric?.instance && item.value) {
+        const instance = item.metric.instance;
+        const isHealthy = parseFloat(item.value[1]) > 0;
+        deviceHealthMap.set(instance, isHealthy);
+      }
+    });
+  }
+
+  // 선택된 건물 타입의 디바이스만 필터링하고 변환
+  return dbDevices
+    .filter(device => device.building_type === buildingType)
+    .map(device => {
+      // 헬스체크 데이터로 상태 결정
+      let status: DeviceStatus = device.status || 'inactive';
+      if (deviceHealthMap.has(device.device_name) || deviceHealthMap.has(device.ip)) {
+        const isHealthy = deviceHealthMap.get(device.device_name) || deviceHealthMap.get(device.ip);
+        status = isHealthy ? 'active' : 'inactive';
+      }
+
+      return {
+        id: device.device_name,
+        name: device.device_name,
+        floor: device.floor,
+        type: device.device_type,
+        status,
+        x: device.position_x,
+        z: device.position_z,
+        building_type: device.building_type,
+        ip: device.ip,
+        location: device.location,
+        description: device.description
+      };
+    });
+};
+
+// 기존 더미 데이터 생성 함수 (백업용)
+const generateIoTDevices = (buildingType: BuildingType, healthData?: PrometheusPanelData): IoTDevice[] => {
+  const building = BUILDING_INFO[buildingType];
   const devices: IoTDevice[] = [];
+  
+  // 헬스체크 데이터에서 디바이스별 상태 추출
+  const deviceHealthMap = new Map<string, boolean>();
+  if (healthData?.data) {
+    healthData.data.forEach((item: { metric?: { instance?: string }; value?: [number, string] }) => {
+      if (item.metric?.instance && item.value) {
+        const instance = item.metric.instance;
+        const isHealthy = parseFloat(item.value[1]) > 0;
+        deviceHealthMap.set(instance, isHealthy);
+      }
+    });
+  }
   
   // 건물 타입을 기반으로 시드 생성 (항상 같은 결과)
   const buildingSeed = buildingType.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -93,17 +113,32 @@ const generateIoTDevices = (buildingType: BuildingType): IoTDevice[] => {
     // 결정론적으로 디바이스 수 결정 (3-10개)
     const devicesPerFloor = Math.floor(seededRandom(floorSeed) * 8) + 3;
     
+    const deviceTypes = Object.values({ sensor: 'sensor', camera: 'camera', monitor: 'monitor' }) as DeviceType[];
+    
     for (let i = 0; i < devicesPerFloor; i++) {
       const deviceSeed = floorSeed + i;
+      const deviceId = `${buildingType}-${floor}-${i}`;
+      const deviceName = `Device-${floor}F-${i + 1}`;
+      
+      // 헬스체크 데이터가 있으면 실제 상태 사용, 없으면 더미 데이터
+      let status: DeviceStatus;
+      if (deviceHealthMap.has(deviceName) || deviceHealthMap.has(deviceId)) {
+        const isHealthy = deviceHealthMap.get(deviceName) || deviceHealthMap.get(deviceId);
+        status = isHealthy ? 'active' : 'inactive';
+      } else {
+        // 헬스체크 데이터가 없으면 더미 데이터 사용 (개발용)
+        status = seededRandom(deviceSeed + 2) > 0.1 ? 'active' : 'inactive';
+      }
       
       devices.push({
-        id: `${buildingType}-${floor}-${i}`,
-        name: `Device-${floor}F-${i + 1}`,
+        id: deviceId,
+        name: deviceName,
         floor,
-        type: (['sensor', 'camera', 'monitor'] as const)[Math.floor(seededRandom(deviceSeed + 1) * 3)],
-        status: seededRandom(deviceSeed + 2) > 0.1 ? 'active' : 'inactive',
+        type: deviceTypes[Math.floor(seededRandom(deviceSeed + 1) * 3)],
+        status,
         x: seededRandom(deviceSeed + 3) * 80 + 10,
-        z: seededRandom(deviceSeed + 4) * 80 + 10
+        z: seededRandom(deviceSeed + 4) * 80 + 10,
+        building_type: buildingType
       });
     }
   }
@@ -220,7 +255,7 @@ const Building3D = ({
   devices: IoTDevice[];
   selectedFloor?: number | null;
 }) => {
-  const building = BUILDINGS[buildingType];
+  const building = BUILDING_INFO[buildingType];
   
   const floors = useMemo(() => {
     const floorList = [];
@@ -271,7 +306,7 @@ const BuildingView = ({
   selectedFloor: number | null;
   onFloorSelect: (floor: number | null) => void;
 }) => {
-  const building = BUILDINGS[buildingType];
+  const building = BUILDING_INFO[buildingType];
   
   // 현재 선택된 층의 디바이스만 필터링
   const visibleDevices = selectedFloor === null 
@@ -373,32 +408,147 @@ const BuildingView = ({
             </div>
           </div>
         </div>
-        
-        {selectedFloor !== null && (
-          <div className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            {selectedFloor < 0 ? `지하 ${Math.abs(selectedFloor)}층` : `${selectedFloor}층`} 선택됨
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
-export function ThreeDView() {
-  const [selectedBuilding, setSelectedBuilding] = useState<BuildingType>('terminal1');
+interface ThreeDViewProps {
+  healthData?: PrometheusPanelData;
+}
+
+export function ThreeDView({ healthData }: ThreeDViewProps) {
+  const [selectedBuilding, setSelectedBuilding] = useState<BuildingType>(BUILDING_TYPES.TERMINAL1);
   const [devices, setDevices] = useState<IoTDevice[]>([]);
   const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [prevBuilding, setPrevBuilding] = useState<BuildingType>(BUILDING_TYPES.TERMINAL1);
   
-  // 클라이언트 사이드에서만 실행
+  // 알림 관련 상태
+  const [notifications, setNotifications] = useState<Array<{
+    id: string;
+    title: string;
+    message: string;
+    type?: 'warning' | 'error' | 'info';
+  }>>([]);
+  const [prevInactiveCount, setPrevInactiveCount] = useState<number>(0);
+  
+  // 데이터베이스에서 디바이스를 가져오는 함수 (초기 로드/건물 변경시만)
+  const fetchDevicesFromDB = useCallback(async (building: BuildingType, health?: PrometheusPanelData) => {
+    try {
+      const response = await fetch('/api/device?all=true');
+      const result = await response.json();
+      
+      if (result.items) {
+        const convertedDevices = convertDbDevicesToIoTDevices(result.items, building, health);
+        setDevices(convertedDevices);
+      } else {
+        console.warn('No devices found in database, using dummy data');
+        setDevices(generateIoTDevices(building, health));
+      }
+    } catch (error) {
+      console.error('Failed to fetch devices from database:', error);
+      // DB 오류 시 더미 데이터 사용
+      setDevices(generateIoTDevices(building, health));
+    }
+  }, []); // 의존성 없음
+
+  // 알림 관련 함수들
+  const addNotification = useCallback((title: string, message: string, type: 'warning' | 'error' | 'info' = 'warning') => {
+    const id = `notification-${Date.now()}-${Math.random()}`;
+    setNotifications(prev => [...prev, { id, title, message, type }]);
+  }, []);
+
+  const removeNotification = useCallback((id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, []);
+
+  // 기존 디바이스들의 상태만 업데이트하는 함수 (헬스체크 데이터 변경시)
+  const updateDeviceHealthStatus = useCallback(() => {
+    if (!healthData?.data) return;
+
+    // 헬스체크 데이터에서 디바이스별 상태 추출
+    const deviceHealthMap = new Map<string, boolean>();
+    healthData.data.forEach((item: { metric?: { instance?: string }; value?: [number, string] }) => {
+      if (item.metric?.instance && item.value) {
+        const instance = item.metric.instance;
+        const isHealthy = parseFloat(item.value[1]) > 0;
+        deviceHealthMap.set(instance, isHealthy);
+      }
+    });
+
+    // 기존 디바이스들의 상태만 업데이트 (새로고침 없이)
+    setDevices(prevDevices => {
+      if (prevDevices.length === 0) return prevDevices;
+      
+      const updatedDevices = prevDevices.map(device => {
+        let status: DeviceStatus = device.status;
+        if (deviceHealthMap.has(device.name) || deviceHealthMap.has(device.ip || '')) {
+          const isHealthy = deviceHealthMap.get(device.name) || deviceHealthMap.get(device.ip || '');
+          status = isHealthy ? 'active' : 'inactive';
+        }
+        return { ...device, status };
+      });
+
+      // 비활성 디바이스 수 계산 및 증가 감지
+      const currentInactiveCount = updatedDevices.filter(d => d.status === 'inactive').length;
+      
+      // 초기화가 완료된 후에만 알림 체크 (loading이 false이고 prevInactiveCount가 설정된 후)
+      if (!loading && prevInactiveCount > 0 && currentInactiveCount > prevInactiveCount) {
+        const increase = currentInactiveCount - prevInactiveCount;
+        const buildingName = BUILDING_INFO[selectedBuilding].name;
+        
+        addNotification(
+          '⚠️ 디바이스 장애 감지',
+          `${buildingName}에서 비활성 디바이스가 ${increase}개 증가했습니다. (${prevInactiveCount} → ${currentInactiveCount})`,
+          'warning'
+        );
+      }
+      
+      // 현재 비활성 디바이스 수 저장
+      setPrevInactiveCount(currentInactiveCount);
+      
+      return updatedDevices;
+    });
+  }, [healthData, loading, prevInactiveCount, selectedBuilding, addNotification]);
+
+  // 초기 로드
   useEffect(() => {
     setIsClient(true);
-    setDevices(generateIoTDevices(selectedBuilding));
-    setSelectedFloor(null); // 건물 변경 시 층 선택 초기화
-  }, [selectedBuilding]);
+    setLoading(true);
+    fetchDevicesFromDB(selectedBuilding, healthData).finally(() => setLoading(false));
+  }, [fetchDevicesFromDB]); // 한 번만 실행
+
+  // 초기 로드 완료 후 비활성 디바이스 수 설정
+  useEffect(() => {
+    if (!loading && devices.length > 0 && prevInactiveCount === 0) {
+      const initialInactiveCount = devices.filter(d => d.status === 'inactive').length;
+      setPrevInactiveCount(initialInactiveCount);
+    }
+  }, [loading, devices, prevInactiveCount]);
+
+  // 건물 변경 시에만 층 선택 초기화 및 새 데이터 fetch
+  useEffect(() => {
+    if (prevBuilding !== selectedBuilding) {
+      setSelectedFloor(null);
+      setPrevBuilding(selectedBuilding);
+      setPrevInactiveCount(0); // 건물 변경시 비활성 디바이스 카운트 초기화
+      if (isClient) {
+        fetchDevicesFromDB(selectedBuilding, healthData);
+      }
+    }
+  }, [selectedBuilding, prevBuilding, isClient, fetchDevicesFromDB, healthData]);
+
+  // healthData가 변경될 때는 상태만 업데이트 (새로고침 방지)
+  useEffect(() => {
+    if (isClient && !loading) {
+      updateDeviceHealthStatus();
+    }
+  }, [healthData, isClient, loading, updateDeviceHealthStatus]);
   
   // 서버 사이드에서는 로딩 표시
-  if (!isClient) {
+  if (!isClient || loading) {
     return (
       <Card className="w-full">
         <CardHeader>
@@ -406,12 +556,14 @@ export function ThreeDView() {
             🏢 인천공항 3D 뷰
           </CardTitle>
           <CardDescription>
-            3D 뷰를 로딩 중입니다...
+            {!isClient ? '3D 뷰를 로딩 중입니다...' : '데이터베이스에서 디바이스 정보를 가져오는 중...'}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="w-full h-96 bg-gray-100 rounded-lg border flex items-center justify-center">
-            <div className="text-gray-500">3D 뷰 준비 중... 🔄</div>
+            <div className="text-gray-500">
+              {!isClient ? '3D 뷰 준비 중... 🔄' : '디바이스 데이터 로딩 중... 📊'}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -420,6 +572,12 @@ export function ThreeDView() {
   
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
+      {/* 알림 매니저 */}
+      <NotificationManager
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
+      
       {/* 헤더 */}
       <div className="shrink-0 p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -439,7 +597,7 @@ export function ThreeDView() {
                 <SelectValue placeholder="건물을 선택하세요" />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(BUILDINGS).map(([key, building]) => (
+                {Object.entries(BUILDING_INFO).map(([key, building]) => (
                   <SelectItem key={key} value={key}>
                     {building.name} ({building.floors}층)
                   </SelectItem>
@@ -461,7 +619,7 @@ export function ThreeDView() {
               <span>비활성 디바이스</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-2 border-2 border-gray-300 rounded" style={{backgroundColor: BUILDINGS[selectedBuilding].color}}></div>
+              <div className="w-4 h-2 border-2 border-gray-300 rounded" style={{backgroundColor: BUILDING_INFO[selectedBuilding].color}}></div>
               <span>건물 층</span>
             </div>
           </div>

@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DashboardPanel } from "./dashboard-panel";
-import { SystemResourcePanel } from "./system-resource-panel";
-import { TrendChart } from "./trend-chart";
-import { DeviceTable } from "./device-table";
 import { PrometheusPanelData } from "@/lib/prometheus-api";
-import { OcrPanel } from "./ocr-panel";
-import { OcrMismatchTablePanel } from "./ocr-mismatch-table-panel";
 import { ThreeDView } from "./3d-view";
 import { SummaryPanel } from "./summary-panel";
 
@@ -81,7 +75,7 @@ export function DashboardClient({
             {/* 왼쪽: 3D 뷰 */}
             <div className="flex-1 lg:flex-[2] h-full overflow-hidden">
                 <div className="h-full w-full">
-                    <ThreeDView />
+                    <ThreeDView healthData={data.find(d => d.id === "device-health")} />
                 </div>
             </div>
 

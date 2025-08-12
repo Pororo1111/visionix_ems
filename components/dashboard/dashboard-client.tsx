@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { PrometheusPanelData } from "@/lib/prometheus-api";
 import { ThreeDView } from "./3d-view";
 import { SummaryPanel } from "./summary-panel";
+import { LogButton } from "./log-button";
 
 interface DashboardClientProps {
     initialData: PrometheusPanelData[];
@@ -107,6 +108,9 @@ export function DashboardClient({
                         isMobile={isMobile}
                     />
                 </div>
+
+                {/* 로그 버튼 - 모바일에서도 표시 */}
+                <LogButton data={data} />
             </div>
         );
     }
@@ -150,6 +154,9 @@ export function DashboardClient({
                     </div>
                 </div>
             </div>
+
+            {/* 로그 버튼 - 데스크톱에서도 표시 */}
+            <LogButton data={data} />
         </div>
     );
 }

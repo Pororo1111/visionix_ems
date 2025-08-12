@@ -22,6 +22,13 @@
       "when": 1754915187559,
       "tag": "0002_massive_hellcat",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1755004977127,
+      "tag": "0003_purple_prowler",
+      "breakpoints": true
     }
   ]
 }

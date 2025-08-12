@@ -14,7 +14,7 @@ import {
     SidebarSeparator,
     useSidebar,
 } from "@/components/ui/sidebar";
-import { Home, Monitor, Settings, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, Monitor, Settings, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";

@@ -39,7 +39,7 @@ interface DbDevice {
   position_x: number;
   position_z: number;
   status?: DeviceStatus;
-  ip?: string;
+  ip: string;
   location?: string;
   description?: string;
 }

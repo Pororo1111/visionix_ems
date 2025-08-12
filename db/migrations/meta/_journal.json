@@ -15,6 +15,13 @@
       "when": 1751350246209,
       "tag": "0001_spotty_catseye",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1754915187559,
+      "tag": "0002_massive_hellcat",
+      "breakpoints": true
     }
   ]
 }

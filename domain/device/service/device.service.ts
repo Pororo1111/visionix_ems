@@ -14,17 +14,29 @@ export async function listDevices(
 export async function registerDevice(
     data: DeviceCreateRequest
 ): Promise<Device> {
-    // device_id와 ip를 분리하여 저장
     return repository.createDevice({
-        device_id: data.device_id,
-        ip: data.ip,
-        location: data.location,
+        device_name: data.device_name,
+        ip: data.ip || null,
+        device_type: data.device_type,
+        building_type: data.building_type,
+        floor: data.floor,
+        position_x: data.position_x,
+        position_z: data.position_z,
+        location: data.location || null,
+        description: data.description || null,
+        status: 'inactive', // 기본값
+        is_registered_via_3d: true, // 3D 등록 플래그
     });
 }
 
-// 디바이스 단건 조회 서비스
-export async function getDevice(deviceId: string): Promise<Device | undefined> {
-    return repository.getDeviceById(deviceId);
+// 디바이스 단건 조회 서비스 (이름으로)
+export async function getDevice(deviceName: string): Promise<Device | undefined> {
+    return repository.getDeviceByName(deviceName);
+}
+
+// 전체 디바이스 조회 서비스
+export async function getAllDevices(): Promise<Device[]> {
+    return repository.getAllDevices();
 }
 
 // 전체 디바이스 IP만 반환
@@ -36,14 +48,14 @@ export async function getAllDeviceIps(): Promise<string[]> {
 }
 
 // 디바이스 삭제 서비스
-export async function removeDevice(deviceId: string): Promise<boolean> {
-    return repository.deleteDevice(deviceId);
+export async function removeDevice(deviceName: string): Promise<boolean> {
+    return repository.deleteDevice(deviceName);
 }
 
 // 디바이스 정보 수정 서비스
 export async function updateDevice(
-    deviceId: string,
-    data: Partial<Device>
+    deviceName: string,
+    data: Partial<Omit<Device, 'device_name' | 'created_at'>>
 ): Promise<boolean> {
-    return repository.updateDevice(deviceId, data);
+    return repository.updateDevice(deviceName, data);
 }
